@@ -41,7 +41,7 @@ export const CATEGORIES: ProductCategory[] = [
       chaude('samoussa-viande', 'Samoussa viande'),
       chaude('sfiha-viande', 'Sfiha viande'),
       chaude('sfiha-fromage', 'Sfiha fromage'),
-      chaude('fatayer-epinards', 'Fatayer épinards'),
+      { ...chaude('fatayer-epinards', 'Fatayer épinards'), image: '/produits/fatayer-epinards.jpg' },
       chaude('falafel-entree', 'Falafel (entrée)'),
       chaude('fricassee-tunisienne', 'Fricassée tunisienne'),
       { id: 'batata-harra', nom: 'Batata harra', prix: 6, unite: '200g' },

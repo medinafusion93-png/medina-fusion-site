@@ -2,6 +2,7 @@ import { useCart } from '../hooks/useCart';
 import { formatPrice } from '../lib/format';
 import type { Product } from '../types';
 import QuantityStepper from './QuantityStepper';
+import SafeImage from './SafeImage';
 
 /** Ligne produit compacte (entrées, sandwichs, desserts, boissons…) */
 export default function ProductCard({ product }: { product: Product }) {
@@ -14,7 +15,10 @@ export default function ProductCard({ product }: { product: Product }) {
         active ? 'border-gold/60 bg-ink-700' : 'hover:border-white/20'
       }`}
     >
-      <div className="min-w-0">
+      {product.image && (
+        <SafeImage src={product.image} alt={product.nom} className="h-16 w-16 shrink-0 rounded-xl sm:h-20 sm:w-20" />
+      )}
+      <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <h4 className="font-semibold text-white">{product.nom}</h4>
           {product.badge && (

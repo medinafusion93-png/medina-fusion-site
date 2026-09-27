@@ -14,7 +14,7 @@ export default function Hero() {
           alt="Logo Medina Fusion"
           width={128}
           height={128}
-          className="h-24 w-24 animate-fade-up rounded-full border-2 border-gold object-cover shadow-xl shadow-gold/20 sm:h-32 sm:w-32"
+          className="h-24 w-24 animate-fade-up rounded-full border-2 border-gold bg-white object-cover shadow-xl shadow-gold/20 sm:h-32 sm:w-32"
           onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
         />
 

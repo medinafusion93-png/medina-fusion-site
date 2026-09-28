@@ -5,10 +5,11 @@ vi.mock('../data/config', async (orig) => {
   return {
     ...mod,
     WEBHOOKS: { commande: 'https://hook.test/commande', degustation: 'https://hook.test/degustation', timeoutMs: 50 },
+    SUPABASE: { url: 'https://proj.supabase.co', anonKey: 'anon-key' },
   };
 });
 
-import { buildMessage, buildPayload, mailtoUrl, postToWebhook, whatsappUrl } from '../lib/order';
+import { buildMessage, buildPayload, enregistrerDemande, mailtoUrl, postToWebhook, whatsappUrl } from '../lib/order';
 import { validate } from '../lib/validation';
 import type { CustomerInfo } from '../types';
 
@@ -82,6 +83,24 @@ describe('postToWebhook', () => {
         new Promise<Response>((_res, rej) => init?.signal?.addEventListener('abort', () => rej(new Error('aborted')))),
     );
     await expect(postToWebhook(p, hanging)).resolves.toBe(false);
+  });
+});
+
+describe('enregistrerDemande (espace admin)', () => {
+  const p = buildPayload(info, lines, 12, 'commande');
+
+  it('appelle la fonction RPC nouvelle_demande avec la clé publique', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('"uuid"', { status: 200 }));
+    await expect(enregistrerDemande(p, fetchMock)).resolves.toBe(true);
+    const [url, init] = fetchMock.mock.calls[0]!;
+    expect(url).toBe('https://proj.supabase.co/rest/v1/rpc/nouvelle_demande');
+    expect(init.headers.apikey).toBe('anon-key');
+    expect(JSON.parse(init.body)).toEqual({ p });
+  });
+
+  it('ne bloque jamais le client en cas d’erreur', async () => {
+    await expect(enregistrerDemande(p, vi.fn().mockRejectedValue(new TypeError('network')))).resolves.toBe(false);
+    await expect(enregistrerDemande(p, vi.fn().mockResolvedValue(new Response('', { status: 400 })))).resolves.toBe(false);
   });
 });
 

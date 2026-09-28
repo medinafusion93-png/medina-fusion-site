@@ -1,3 +1,20 @@
 [build]
   command = "npm run build"
   publish = "dist"
+
+# Espace administrateur : application monopage servie sur /admin
+[[redirects]]
+  from = "/admin/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/index.html"
+  status = 200
+
+# Ne pas indexer l'espace admin dans les moteurs de recherche
+[[headers]]
+  for = "/admin*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

@@ -1,7 +1,7 @@
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ORDERABLES } from '../data/products';
 import { clamp, step, toLines, totals, type Quantities } from '../lib/cart';
-import { buildPayload, mailtoUrl, postToWebhook, whatsappUrl } from '../lib/order';
+import { buildPayload, enregistrerDemande, mailtoUrl, postToWebhook, whatsappUrl } from '../lib/order';
 import { validate, type FieldErrors } from '../lib/validation';
 import type { CartLine, CustomerInfo, OrderType, SubmitStatus } from '../types';
 
@@ -157,6 +157,8 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
       const payload = buildPayload(info, type === 'commande' ? lines : [], type === 'commande' ? total : 0, type);
       setStatus({ state: 'loading', type });
+      // Espace admin : en parallèle, sans jamais bloquer ni retarder le client
+      void enregistrerDemande(payload);
       const ok = await postToWebhook(payload);
       if (ok) {
         setStatus({ state: 'success', type });
@@ -175,6 +177,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       return;
     }
     const payload = buildPayload(info, lines, total, 'commande');
+    // Trace dans l’espace admin si le client a laissé ses coordonnées
+    if (payload.entreprise || payload.email || payload.tel) {
+      void enregistrerDemande({ ...payload, notes: ['[Envoyée via WhatsApp]', payload.notes].filter(Boolean).join(' ') });
+    }
     window.open(whatsappUrl(payload), '_blank', 'noopener');
   }, [info, lines, total]);
 

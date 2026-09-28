@@ -1,4 +1,4 @@
-import { CONTACT, TVA_RATE, WEBHOOKS } from '../data/config';
+import { CONTACT, SUPABASE, TVA_RATE, WEBHOOKS } from '../data/config';
 import type { CartLine, CustomerInfo, OrderPayload, OrderType } from '../types';
 import { formatPrice, round2 } from './format';
 
@@ -106,5 +106,31 @@ export async function postToWebhook(
     return false;
   } finally {
     clearTimeout(timer);
+  }
+}
+
+/**
+ * Dépose la demande dans l’espace admin (Supabase, fonction `nouvelle_demande`).
+ * Accès en écriture seule : la fonction ne renvoie aucune donnée client.
+ * Ne bloque jamais le client : renvoie false en cas d’échec ou si non configuré.
+ */
+export async function enregistrerDemande(
+  p: OrderPayload,
+  fetchImpl: typeof fetch = fetch,
+): Promise<boolean> {
+  if (!SUPABASE.url || !SUPABASE.anonKey) return false;
+  try {
+    const res = await fetchImpl(`${SUPABASE.url}/rest/v1/rpc/nouvelle_demande`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE.anonKey,
+        Authorization: `Bearer ${SUPABASE.anonKey}`,
+      },
+      body: JSON.stringify({ p }),
+    });
+    return res.ok;
+  } catch {
+    return false;
   }
 }

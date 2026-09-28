@@ -33,3 +33,13 @@ export const WEBHOOKS = {
   degustation: degustationUrl || commandeUrl,
   timeoutMs: Number.isFinite(timeout) && timeout > 0 ? timeout : 10_000,
 } as const;
+
+/**
+ * Base de données de l’espace admin. La clé « anon » est publique par conception :
+ * la sécurité est assurée côté serveur (Row Level Security, voir supabase/schema.sql).
+ * Sans ces variables, /admin s’ouvre en mode démo et le site n’enregistre pas les demandes.
+ */
+export const SUPABASE = {
+  url: (env.VITE_SUPABASE_URL ?? '').trim().replace(/\/$/, ''),
+  anonKey: (env.VITE_SUPABASE_ANON_KEY ?? '').trim(),
+} as const;

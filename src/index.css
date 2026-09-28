@@ -13,6 +13,19 @@
   :focus-visible {
     @apply outline-none ring-2 ring-gold ring-offset-2 ring-offset-ink;
   }
+  /* Documents imprimables de l’espace admin (devis, facture, fiche cuisine) */
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  @media print {
+    body.print-mode {
+      background: #fff;
+      color: #111;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;

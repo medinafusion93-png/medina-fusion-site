@@ -36,3 +36,14 @@ Sur Netlify : *Site configuration → Environment variables*, puis redéployer (
 Flux d'envoi : POST JSON → si 2xx, écran de confirmation + panier vidé ; sinon (timeout, réseau, non-2xx, URL absente) → message d'erreur + ouverture du mailto pré-rempli. WhatsApp reste un lien `wa.me` direct, indépendant du webhook.
 
 Le workflow n8n doit accepter le CORS depuis le domaine du site (option *Allowed Origins* du nœud Webhook).
+
+## Espace administrateur (`/admin`)
+
+Tableau de bord, clients (anti-doublon, historique, notes), commandes (statuts, paiement, allergies),
+devis / factures / fiche cuisine imprimables en PDF, calendrier, recherche, exports.
+
+- Code : `src/admin/` (chargé séparément, n'alourdit pas le site public).
+- Base de données : Supabase — mise en service et sécurité dans [`supabase/README.md`](supabase/README.md).
+- Variables : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. Sans elles : mode démo.
+- Les demandes du site arrivent automatiquement au statut « Demande reçue » (en plus de n8n).
+- `npm run test:sql` vérifie les règles de sécurité de la base.

@@ -2,8 +2,9 @@ import type { ReactNode } from 'react';
 import { CONTACT } from '../data/config';
 import { useCart } from '../hooks/useCart';
 import { formatPrice } from '../lib/format';
-import { todayISO } from '../lib/validation';
+import { dateMinISO } from '../lib/validation';
 import type { CustomerInfo } from '../types';
+import CartSuggestions from './CartSuggestions';
 import TastingButton from './TastingButton';
 
 interface FieldProps {
@@ -113,7 +114,14 @@ export default function OrderForm() {
           <Field name="contact" label="Contact" required autoComplete="name" placeholder="Prénom Nom" />
           <Field name="email" label="Email" type="email" required autoComplete="email" />
           <Field name="tel" label="Téléphone" type="tel" required autoComplete="tel" placeholder="06 12 34 56 78" />
-          <Field name="date" label="Date souhaitée" type="date" required min={todayISO()} />
+          <Field
+            name="date"
+            label="Date souhaitée"
+            type="date"
+            required
+            min={dateMinISO()}
+            hint={`Au moins ${CONTACT.delaiMinJours * 24} h à l’avance`}
+          />
           <Field name="heure" label="Heure de livraison" type="time" required />
           <Field
             name="adresse"
@@ -194,6 +202,7 @@ export default function OrderForm() {
                   <dd className="text-2xl font-extrabold tabular-nums text-gold">{formatPrice(ttc)}</dd>
                 </div>
               </dl>
+              <CartSuggestions />
             </>
           )}
           <div className="mt-5 border-t border-white/10 pt-5 text-center">

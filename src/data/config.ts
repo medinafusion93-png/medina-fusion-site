@@ -13,6 +13,8 @@ export const CONTACT = {
   googleNote: '4,8',
   googleAvis: '700+',
   minPersonnesLivraison: 6,
+  /** Délai minimum entre la commande et la livraison (en jours) */
+  delaiMinJours: 2,
 } as const;
 
 /** Les prix du catalogue sont HT ; TVA restauration/traiteur à 10 % */
@@ -40,6 +42,6 @@ export const WEBHOOKS = {
  * Sans ces variables, /admin s’ouvre en mode démo et le site n’enregistre pas les demandes.
  */
 export const SUPABASE = {
-  url: (env.VITE_SUPABASE_URL ?? '').trim().replace(/\/$/, ''),
+  url: (env.VITE_SUPABASE_URL || 'https://cnyjdpzazuekzwjwhzkc.supabase.co').trim().replace(/\/$/, ''),
   anonKey: (env.VITE_SUPABASE_ANON_KEY ?? '').trim(),
 } as const;

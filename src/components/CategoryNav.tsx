@@ -5,6 +5,7 @@ const LINKS = [
   ...CATEGORIES.map((c) => ({ href: `#${c.id}`, label: c.titre, icon: c.icon })),
   { href: '#formules', label: 'Formules', icon: '🎉' },
   { href: '#commande', label: 'Commander', icon: '📝' },
+  { href: '#faq', label: 'FAQ', icon: '❓' },
 ];
 
 /** Navigation rapide entre catégories — collante, défilement horizontal sur mobile */

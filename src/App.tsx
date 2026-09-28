@@ -1,6 +1,7 @@
 import BudgetSimulator from './components/BudgetSimulator';
 import CartBar from './components/CartBar';
 import CategoryNav from './components/CategoryNav';
+import FaqSection from './components/FaqSection';
 import Footer from './components/Footer';
 import FormulesSection from './components/FormulesSection';
 import Hero from './components/Hero';
@@ -8,6 +9,7 @@ import Highlights from './components/Highlights';
 import OrderForm from './components/OrderForm';
 import ProductSection from './components/ProductSection';
 import StatusNotice from './components/StatusNotice';
+import WhatsAppFab from './components/WhatsAppFab';
 import { ASSETS } from './data/config';
 import { CATEGORIES } from './data/products';
 
@@ -39,10 +41,12 @@ export default function App() {
         ))}
         <FormulesSection />
         <OrderForm />
+        <FaqSection />
       </main>
 
       <Footer />
       <CartBar />
+      <WhatsAppFab />
       <StatusNotice />
     </>
   );

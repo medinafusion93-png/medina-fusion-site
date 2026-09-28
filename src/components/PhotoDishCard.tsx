@@ -29,7 +29,9 @@ export default function PhotoDishCard({ product }: { product: Product }) {
           <p className="mt-1.5 flex-1 text-sm leading-relaxed text-neutral-300">{product.description}</p>
         )}
         <div className="mt-4 flex items-center justify-between gap-3">
-          <span className="text-xl font-bold text-gold">{formatPrice(product.prix)}</span>
+          <span className="text-xl font-bold text-gold">
+            {formatPrice(product.prix)} <span className="text-xs font-medium text-neutral-400">HT</span>
+          </span>
           <QuantityStepper id={product.id} label={product.nom} size="lg" />
         </div>
       </div>

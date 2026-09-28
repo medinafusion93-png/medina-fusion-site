@@ -15,6 +15,9 @@ export const CONTACT = {
   minPersonnesLivraison: 6,
 } as const;
 
+/** Les prix du catalogue sont HT ; TVA restauration/traiteur à 10 % */
+export const TVA_RATE = 0.1;
+
 export const ASSETS = {
   banner: '/banner.jpg',
   logo: '/logo.png',

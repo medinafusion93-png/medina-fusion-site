@@ -3,7 +3,7 @@ import { formatPrice } from '../lib/format';
 
 /** Barre panier flottante (bas d’écran) — visible dès qu’un article est ajouté */
 export default function CartBar() {
-  const { count, total, submit, openWhatsApp, status } = useCart();
+  const { count, total, ttc, submit, openWhatsApp, status } = useCart();
   const loading = status.state === 'loading' && status.type === 'commande';
 
   return (
@@ -32,7 +32,10 @@ export default function CartBar() {
               <span className="block text-xs text-neutral-300" aria-live="polite">
                 {count} article{count > 1 ? 's' : ''}
               </span>
-              <span className="block text-lg font-extrabold tabular-nums text-gold">{formatPrice(total)}</span>
+              <span className="block text-lg font-extrabold tabular-nums text-gold">
+                {formatPrice(ttc)} <span className="text-xs font-semibold">TTC</span>
+              </span>
+              <span className="block text-xs tabular-nums text-neutral-400">{formatPrice(total)} HT</span>
             </span>
           </a>
           <button

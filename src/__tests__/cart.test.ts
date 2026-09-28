@@ -23,6 +23,6 @@ describe('panier', () => {
   it('calcule le total en temps réel sans erreur d’arrondi', () => {
     const lines = toLines({ 'plateau-signature': 3, 'eau-gazeuse': 3, 'buffet-standard': 10, inconnu: 4 }, ORDERABLES);
     expect(lines).toHaveLength(3);
-    expect(totals(lines)).toEqual({ count: 16, total: 47.7 + 7.5 + 350 });
+    expect(totals(lines)).toEqual({ count: 16, total: 405.2, tva: 40.52, ttc: 445.72 });
   });
 });

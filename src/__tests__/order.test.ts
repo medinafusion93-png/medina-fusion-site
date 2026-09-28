@@ -45,6 +45,7 @@ describe('payload n8n', () => {
   it('construit email et WhatsApp', () => {
     const p = buildPayload(info, lines, 12, 'commande');
     expect(buildMessage(p)).toContain('• 2 × Houmous');
+    expect(buildMessage(p)).toMatch(/TOTAL TTC : 13,20\s€/);
     expect(buildMessage(p)).toContain('15/01/2099');
     expect(mailtoUrl(p)).toMatch(/^mailto:Medina\.fusion93@gmail\.com\?subject=/);
     expect(whatsappUrl(p)).toMatch(/^https:\/\/wa\.me\/33662286843\?text=/);

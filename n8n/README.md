@@ -7,4 +7,4 @@
 
 Étape « Prévenir la cuisine » (Gmail) : Type d'e-mail = HTML, Message = `{{ $json.resume_cuisine_html }}`.
 
-`PRIX_SITE_TTC` (étape 8) : `true` si les prix affichés sur le site sont TTC.
+`PRIX_SITE_TTC` (étape 8) : `false` — les prix du site sont HT, la TVA 10 % est ajoutée.

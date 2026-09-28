@@ -22,7 +22,10 @@ export interface OrderContextValue {
   quantities: Quantities;
   lines: CartLine[];
   count: number;
+  /** Montant HT */
   total: number;
+  tva: number;
+  ttc: number;
   increment: (id: string) => void;
   decrement: (id: string) => void;
   setQuantity: (id: string, value: number) => void;
@@ -104,7 +107,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   const clearCart = useCallback(() => setQuantities({}), []);
 
   const lines = useMemo(() => toLines(quantities, ORDERABLES), [quantities]);
-  const { count, total } = useMemo(() => totals(lines), [lines]);
+  const { count, total, tva, ttc } = useMemo(() => totals(lines), [lines]);
 
   const setField = useCallback((field: keyof CustomerInfo, value: string) => {
     setInfo((prev) => ({ ...prev, [field]: value }));
@@ -169,6 +172,8 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       lines,
       count,
       total,
+      tva,
+      ttc,
       increment,
       decrement,
       setQuantity,
@@ -181,7 +186,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       submit,
       openWhatsApp,
     }),
-    [quantities, lines, count, total, increment, decrement, setQuantity, clearCart, info, setField, errors, status, resetStatus, submit, openWhatsApp],
+    [quantities, lines, count, total, tva, ttc, increment, decrement, setQuantity, clearCart, info, setField, errors, status, resetStatus, submit, openWhatsApp],
   );
 
   return <OrderContext.Provider value={value}>{children}</OrderContext.Provider>;

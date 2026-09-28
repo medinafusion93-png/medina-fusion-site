@@ -1,6 +1,6 @@
-import { CONTACT, WEBHOOKS } from '../data/config';
+import { CONTACT, TVA_RATE, WEBHOOKS } from '../data/config';
 import type { CartLine, CustomerInfo, OrderPayload, OrderType } from '../types';
-import { formatPrice } from './format';
+import { formatPrice, round2 } from './format';
 
 export function buildPayload(
   info: CustomerInfo,
@@ -44,9 +44,16 @@ export function buildMessage(p: OrderPayload): string {
   } else {
     out.push('Bonjour Medina Fusion,', '', 'Voici notre commande traiteur :', '');
     for (const l of p.items) {
-      out.push(`• ${l.quantite} × ${l.nom} — ${formatPrice(l.quantite * l.prix_unitaire)}`);
+      out.push(`• ${l.quantite} × ${l.nom} — ${formatPrice(l.quantite * l.prix_unitaire)} HT`);
     }
-    out.push('', `TOTAL : ${formatPrice(p.total)}`, '');
+    const tva = round2(p.total * TVA_RATE);
+    out.push(
+      '',
+      `Sous-total HT : ${formatPrice(p.total)}`,
+      `TVA 10 % : ${formatPrice(tva)}`,
+      `TOTAL TTC : ${formatPrice(round2(p.total + tva))}`,
+      '',
+    );
   }
   out.push('— Coordonnées —');
   const field = (label: string, value?: string) => {

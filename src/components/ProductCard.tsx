@@ -30,6 +30,7 @@ export default function ProductCard({ product }: { product: Product }) {
         {product.description && <p className="mt-0.5 text-sm text-neutral-300">{product.description}</p>}
         <p className="mt-1 text-sm">
           <span className="font-bold text-gold">{formatPrice(product.prix)}</span>
+          <span className="text-xs text-neutral-400"> HT</span>
           {product.unite && <span className="text-neutral-400"> / {product.unite}</span>}
         </p>
       </div>

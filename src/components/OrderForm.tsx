@@ -82,7 +82,7 @@ function Field({ name, label, required, type = 'text', autoComplete, placeholder
 }
 
 export default function OrderForm() {
-  const { lines, total, count, submit, status, openWhatsApp, decrement, increment } = useCart();
+  const { lines, total, tva, ttc, count, submit, status, openWhatsApp, decrement, increment } = useCart();
   const loading = status.state === 'loading' && status.type === 'commande';
 
   return (
@@ -166,19 +166,27 @@ export default function OrderForm() {
                       <span className="font-semibold text-white">{l.quantite} ×</span> {l.nom}
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
-                      <span className="tabular-nums text-neutral-200">{formatPrice(l.quantite * l.prix_unitaire)}</span>
+                      <span className="tabular-nums text-neutral-200">{formatPrice(l.quantite * l.prix_unitaire)} HT</span>
                       <button type="button" aria-label={`Retirer ${l.nom}`} onClick={() => decrement(l.id)} className="h-8 w-8 rounded-full border border-white/20 hover:border-gold">−</button>
                       <button type="button" aria-label={`Ajouter ${l.nom}`} onClick={() => increment(l.id)} className="h-8 w-8 rounded-full border border-white/20 hover:border-gold">+</button>
                     </span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-3 flex items-center justify-between border-t border-gold/30 pt-3">
-                <span className="text-neutral-200">
-                  Total · {count} article{count > 1 ? 's' : ''}
-                </span>
-                <span className="text-2xl font-extrabold text-gold">{formatPrice(total)}</span>
-              </div>
+              <dl className="mt-3 space-y-1 border-t border-gold/30 pt-3 text-sm">
+                <div className="flex justify-between text-neutral-300">
+                  <dt>Sous-total HT · {count} article{count > 1 ? 's' : ''}</dt>
+                  <dd className="tabular-nums">{formatPrice(total)}</dd>
+                </div>
+                <div className="flex justify-between text-neutral-300">
+                  <dt>TVA 10 %</dt>
+                  <dd className="tabular-nums">{formatPrice(tva)}</dd>
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <dt className="text-base font-semibold text-white">Total TTC</dt>
+                  <dd className="text-2xl font-extrabold tabular-nums text-gold">{formatPrice(ttc)}</dd>
+                </div>
+              </dl>
             </>
           )}
           <div className="mt-5 border-t border-white/10 pt-5 text-center">

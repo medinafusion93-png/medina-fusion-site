@@ -28,7 +28,7 @@ export default function FormuleCard({ formule }: { formule: Formule }) {
 
       <div className="mt-3 flex items-baseline gap-2">
         <span className="text-3xl font-extrabold text-gold">{formatPrice(formule.prix)}</span>
-        <span className="text-sm text-neutral-300">/pers.</span>
+        <span className="text-sm text-neutral-300">HT /pers.</span>
         <s className="text-sm text-neutral-400" aria-label={`au lieu de ${formatPrice(formule.prixBarre)}`}>
           {formatPrice(formule.prixBarre)}
         </s>
@@ -57,7 +57,7 @@ export default function FormuleCard({ formule }: { formule: Formule }) {
         <span className="text-sm text-neutral-300">
           {persons > 0 ? (
             <>
-              <strong className="text-white">{persons} pers.</strong> · {formatPrice(persons * formule.prix)}
+              <strong className="text-white">{persons} pers.</strong> · {formatPrice(persons * formule.prix)} HT
             </>
           ) : (
             'Nombre de personnes'

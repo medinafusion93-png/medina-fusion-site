@@ -1,4 +1,5 @@
 import type { CartLine, Orderable } from '../types';
+import { TVA_RATE } from '../data/config';
 import { round2 } from './format';
 
 export type Quantities = Record<string, number>;
@@ -29,12 +30,15 @@ export function toLines(quantities: Quantities, catalog: Map<string, Orderable>)
   return lines;
 }
 
-export function totals(lines: CartLine[]): { count: number; total: number } {
+/** total = montant HT (prix catalogue), tva et ttc calculés à 10 % */
+export function totals(lines: CartLine[]): { count: number; total: number; tva: number; ttc: number } {
   let count = 0;
   let total = 0;
   for (const l of lines) {
     count += l.quantite;
     total += l.quantite * l.prix_unitaire;
   }
-  return { count, total: round2(total) };
+  total = round2(total);
+  const tva = round2(total * TVA_RATE);
+  return { count, total, tva, ttc: round2(total + tva) };
 }

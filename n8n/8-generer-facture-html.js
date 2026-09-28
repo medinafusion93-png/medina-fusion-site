@@ -1,6 +1,6 @@
 // Génère la facture HTML Medina Fusion (convertie en PDF à l'étape suivante)
 // ⚙️ Les prix du site sont-ils TTC (TVA comprise) ? true = oui, false = ce sont des prix HT
-const PRIX_SITE_TTC = true;
+const PRIX_SITE_TTC = false;
 const TVA = 0.10;
 
 const cmd = $('2. Normaliser Commande').first().json;

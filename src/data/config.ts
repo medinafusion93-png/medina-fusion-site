@@ -42,6 +42,7 @@ export const WEBHOOKS = {
  * Sans ces variables, /admin s’ouvre en mode démo et le site n’enregistre pas les demandes.
  */
 export const SUPABASE = {
-  url: (env.VITE_SUPABASE_URL || 'https://cnyjdpzazuekzwjwhzkc.supabase.co').trim().replace(/\/$/, ''),
-  anonKey: (env.VITE_SUPABASE_ANON_KEY ?? '').trim(),
+  url: (env.VITE_SUPABASE_URL || 'https://cnyjdpzazuekzwjwhzkc.supabase.co').replace(/[^\x21-\x7e]/g, '').replace(/\/$/, ''),
+  // Retire espaces et caractères invisibles/non ASCII glissés au copier-coller
+  anonKey: (env.VITE_SUPABASE_ANON_KEY ?? '').replace(/[^\x21-\x7e]/g, ''),
 } as const;

@@ -30,6 +30,8 @@ export interface OrderContextValue {
   increment: (id: string) => void;
   decrement: (id: string) => void;
   setQuantity: (id: string, value: number) => void;
+  /** Ajoute plusieurs articles d’un coup (menu du simulateur) */
+  addMany: (lines: { id: string; quantite: number }[]) => void;
   clearCart: () => void;
 
   info: CustomerInfo;
@@ -105,6 +107,17 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     (id: string, value: number) => update(id, (_c, min) => clamp(value, min)),
     [update],
   );
+  const addMany = useCallback((items: { id: string; quantite: number }[]) => {
+    setQuantities((prev) => {
+      const copy = { ...prev };
+      for (const { id, quantite } of items) {
+        const item = ORDERABLES.get(id);
+        if (!item || quantite <= 0) continue;
+        copy[id] = clamp((copy[id] ?? 0) + quantite, item.min);
+      }
+      return copy;
+    });
+  }, []);
   const clearCart = useCallback(() => setQuantities({}), []);
 
   const lines = useMemo(() => toLines(quantities, ORDERABLES), [quantities]);
@@ -178,6 +191,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       increment,
       decrement,
       setQuantity,
+      addMany,
       clearCart,
       info,
       setField,
@@ -187,7 +201,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       submit,
       openWhatsApp,
     }),
-    [quantities, lines, count, total, tva, ttc, increment, decrement, setQuantity, clearCart, info, setField, errors, status, resetStatus, submit, openWhatsApp],
+    [quantities, lines, count, total, tva, ttc, increment, decrement, setQuantity, addMany, clearCart, info, setField, errors, status, resetStatus, submit, openWhatsApp],
   );
 
   return <OrderContext.Provider value={value}>{children}</OrderContext.Provider>;

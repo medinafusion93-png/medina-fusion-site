@@ -1,6 +1,7 @@
 import { CATEGORIES } from '../data/products';
 
 const LINKS = [
+  { href: '#simulateur', label: 'Menu selon budget', icon: '🧮' },
   ...CATEGORIES.map((c) => ({ href: `#${c.id}`, label: c.titre, icon: c.icon })),
   { href: '#formules', label: 'Formules', icon: '🎉' },
   { href: '#commande', label: 'Commander', icon: '📝' },

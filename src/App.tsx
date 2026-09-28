@@ -1,3 +1,4 @@
+import BudgetSimulator from './components/BudgetSimulator';
 import CartBar from './components/CartBar';
 import CategoryNav from './components/CategoryNav';
 import Footer from './components/Footer';
@@ -32,6 +33,7 @@ export default function App() {
       <CategoryNav />
 
       <main id="carte" className="mx-auto max-w-6xl scroll-mt-20 space-y-16 px-4 py-12 sm:px-6 lg:px-8">
+        <BudgetSimulator />
         {CATEGORIES.map((cat) => (
           <ProductSection key={cat.id} category={cat} />
         ))}

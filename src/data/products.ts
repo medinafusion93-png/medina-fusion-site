@@ -1,4 +1,4 @@
-import type { Formule, Orderable, Product, ProductCategory } from '../types';
+import type { Formule, Orderable, Product, ProductCategory, ProductOption } from '../types';
 
 /**
  * Catalogue traiteur — modifier les prix ici uniquement.
@@ -9,6 +9,19 @@ const froide = (id: string, nom: string): Product => ({ id, nom, prix: 6, unite:
 const chaude = (id: string, nom: string): Product => ({ id, nom, prix: 6.5, unite: '4 pièces' });
 const sandwich = (id: string, nom: string): Product => ({ id, nom, prix: 7.5 });
 const dessert = (id: string, nom: string, unite?: string): Product => ({ id, nom, prix: 4, unite });
+
+const BEIGNETS: ProductOption = {
+  label: 'Beignets',
+  choix: [
+    { id: 'vegetariens', nom: 'végétariens' },
+    { id: 'legumes', nom: 'légumes' },
+    { id: 'viande', nom: 'viande' },
+    { id: 'fromage', nom: 'fromage' },
+  ],
+};
+
+/** Id panier d’un produit à options : `plateau-shawarma:poulet` */
+export const variantId = (productId: string, choixId: string) => `${productId}:${choixId}`;
 
 export const CATEGORIES: ProductCategory[] = [
   {
@@ -83,13 +96,22 @@ export const CATEGORIES: ProductCategory[] = [
         badge: 'Signature',
         description:
           'Brochette kefta, brochette poulet, houmous, caviar d’aubergine, taboulé, purée d’ail, beignet au choix',
+        options: BEIGNETS,
       },
       {
         id: 'plateau-shawarma',
         nom: 'Plateau Shawarma',
         prix: 15.9,
         image: '/plateaux/shawarma.jpg',
-        description: 'Houmous, fromage blanc concombre, batata hara, purée d’ail',
+        description: 'Shawarma au choix, houmous, fromage blanc concombre, batata hara, purée d’ail',
+        options: {
+          label: 'Shawarma',
+          prefixe: '',
+          choix: [
+            { id: 'viande', nom: 'Viande' },
+            { id: 'poulet', nom: 'Poulet' },
+          ],
+        },
       },
       {
         id: 'assiette-vegetarienne',
@@ -97,7 +119,8 @@ export const CATEGORIES: ProductCategory[] = [
         prix: 12.9,
         image: '/plateaux/vegetarienne.jpg',
         badge: 'Végétarien',
-        description: 'Houmous, caviar d’aubergine, fromage blanc concombre, 3 beignets végétariens',
+        description: 'Houmous, caviar d’aubergine, fromage blanc concombre, 3 beignets au choix',
+        options: BEIGNETS,
       },
       {
         id: 'plateau-sans-gluten-vege',
@@ -216,7 +239,17 @@ export const FORMULES: Formule[] = [
 /** Index id → article commandable (produits + formules), utilisé par le panier */
 export const ORDERABLES = new Map<string, Orderable>(
   [
-    ...CATEGORIES.flatMap((c) => c.produits.map((p): Orderable => ({ id: p.id, nom: p.nom, prix: p.prix }))),
+    ...CATEGORIES.flatMap((c) =>
+      c.produits.flatMap((p): Orderable[] =>
+        p.options
+          ? p.options.choix.map((ch) => ({
+              id: variantId(p.id, ch.id),
+              nom: `${p.nom} — ${[p.options!.prefixe ?? p.options!.label.toLowerCase(), ch.nom].filter(Boolean).join(' ')}`,
+              prix: p.prix,
+            }))
+          : [{ id: p.id, nom: p.nom, prix: p.prix }],
+      ),
+    ),
     ...FORMULES.map((f): Orderable => ({ id: f.id, nom: `${f.nom} (par pers.)`, prix: f.prix, min: f.minPersonnes })),
   ].map((o) => [o.id, o]),
 );

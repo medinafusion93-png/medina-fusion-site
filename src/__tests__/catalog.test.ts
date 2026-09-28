@@ -16,7 +16,16 @@ describe('catalogue', () => {
       boissons: 4,
     });
     expect(FORMULES).toHaveLength(5);
-    expect(ORDERABLES.size).toBe(produits.length + FORMULES.length);
+    const lignesPanier = produits.reduce((s, p) => s + (p.options ? p.options.choix.length : 1), 0);
+    expect(ORDERABLES.size).toBe(lignesPanier + FORMULES.length);
+  });
+
+  it('crée une ligne panier par choix pour les plateaux à options', () => {
+    expect(ORDERABLES.get('plateau-shawarma:poulet')?.nom).toBe('Plateau Shawarma — Poulet');
+    expect(ORDERABLES.get('plateau-shawarma:viande')?.nom).toBe('Plateau Shawarma — Viande');
+    expect(ORDERABLES.get('assiette-vegetarienne:fromage')?.nom).toBe('Assiette Végétarienne — beignets fromage');
+    expect(ORDERABLES.get('plateau-signature:legumes')?.prix).toBe(15.9);
+    expect(ORDERABLES.has('plateau-shawarma')).toBe(false);
   });
 
   it('a des identifiants uniques', () => {
@@ -31,7 +40,8 @@ describe('catalogue', () => {
     expect(prix('batata-harra')).toBe(6);
     expect(prix('shawarma-poulet')).toBe(7.5);
     expect(prix('formule-sandwich')).toBe(13);
-    expect(prix('plateau-signature')).toBe(15.9);
+    expect(prix('plateau-signature:viande')).toBe(15.9);
+    expect(prix('assiette-vegetarienne:legumes')).toBe(12.9);
     expect(prix('plateau-sans-gluten-vege')).toBe(12.9);
     expect(prix('plateau-sans-gluten-viande')).toBe(15.9);
     expect(prix('brochette-kefta')).toBe(3.5);

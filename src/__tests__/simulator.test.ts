@@ -25,15 +25,16 @@ describe('simulateur budget', () => {
   it('répartit les végétariens sur l’assiette végétarienne', () => {
     const res = propose({ personnes: 10, budget: 20, moment: 'dejeuner', vege: 3 });
     const ideal = res.find((p) => p.tag === 'ideal')!;
-    expect(ideal.lignes).toContainEqual({ id: 'plateau-shawarma', quantite: 7 });
-    expect(ideal.lignes).toContainEqual({ id: 'assiette-vegetarienne', quantite: 3 });
+    expect(ideal.lignes).toContainEqual({ id: 'plateau-shawarma:viande', quantite: 4 });
+    expect(ideal.lignes).toContainEqual({ id: 'plateau-shawarma:poulet', quantite: 3 });
+    expect(ideal.lignes).toContainEqual({ id: 'assiette-vegetarienne:vegetariens', quantite: 3 });
   });
 
   it('sans gluten : plateau sans gluten et dessert sans gluten', () => {
     const res = candidates({ personnes: 10, budget: 30, moment: 'dejeuner', vege: 2, sansGluten: 3 });
     const sig = res.find((c) => c.key === 'plateau-signature')!;
-    expect(sig.lignes).toContainEqual({ id: 'plateau-signature', quantite: 5 });
-    expect(sig.lignes).toContainEqual({ id: 'assiette-vegetarienne', quantite: 2 });
+    expect(sig.lignes).toContainEqual({ id: 'plateau-signature:vegetariens', quantite: 5 });
+    expect(sig.lignes).toContainEqual({ id: 'assiette-vegetarienne:vegetariens', quantite: 2 });
     expect(sig.lignes).toContainEqual({ id: 'plateau-sans-gluten-viande', quantite: 3 });
     expect(sig.lignes).toContainEqual({ id: 'baklawa', quantite: 7 });
     expect(sig.lignes).toContainEqual({ id: 'salade-de-fruits', quantite: 3 });

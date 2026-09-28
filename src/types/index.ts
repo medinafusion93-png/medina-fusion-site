@@ -17,6 +17,19 @@ export interface Product {
   /** Chemin relatif à /public (ex. "/plateaux/signature.jpg") */
   image?: string;
   badge?: string;
+  /**
+   * Choix obligatoire (ex. viande / poulet). Chaque choix devient une ligne de panier
+   * distincte, d’id `${id}:${choix.id}` — ex. « Plateau Shawarma — Poulet ».
+   */
+  options?: ProductOption;
+}
+
+export interface ProductOption {
+  /** Libellé affiché au-dessus des choix, ex. « Beignets » */
+  label: string;
+  /** Préfixe dans le nom de ligne panier (défaut : label en minuscules ; '' pour aucun) */
+  prefixe?: string;
+  choix: { id: string; nom: string }[];
 }
 
 export interface ProductCategory {

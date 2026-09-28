@@ -1,4 +1,4 @@
-import { ORDERABLES } from '../data/products';
+import { ORDERABLES, variantId } from '../data/products';
 import { round2 } from './format';
 
 /**
@@ -67,6 +67,16 @@ const desserts = (id: string, n: number, sg: number): ProposalLine[] => [
   { id, quantite: n - sg },
   { id: 'salade-de-fruits', quantite: sg },
 ];
+/** Plateaux à options : valeurs par défaut (modifiables ensuite au panier) */
+const assietteVege = (q: number): ProposalLine => ({ id: variantId('assiette-vegetarienne', 'vegetariens'), quantite: q });
+const signature = (q: number): ProposalLine => ({ id: variantId('plateau-signature', 'vegetariens'), quantite: q });
+const shawarmaPlateaux = (q: number): ProposalLine[] => {
+  const [viande, poulet] = split(q);
+  return [
+    { id: variantId('plateau-shawarma', 'viande'), quantite: viande },
+    { id: variantId('plateau-shawarma', 'poulet'), quantite: poulet },
+  ];
+};
 
 const RECIPES: Recipe[] = [
   // ---------- Petit-déjeuner ----------
@@ -158,8 +168,8 @@ const RECIPES: Recipe[] = [
     description: 'Plateau repas individuel + citronnade maison',
     moments: ['dejeuner'],
     build: ({ n, vege, sg, viande }) => [
-      { id: 'plateau-shawarma', quantite: viande },
-      { id: 'assiette-vegetarienne', quantite: vege },
+      ...shawarmaPlateaux(viande),
+      assietteVege(vege),
       sgPlat(sg),
       { id: 'citronnade', quantite: n },
     ],
@@ -170,8 +180,8 @@ const RECIPES: Recipe[] = [
     description: 'Notre plateau signature + citronnade maison + dessert',
     moments: ['dejeuner'],
     build: ({ n, vege, sg, viande }) => [
-      { id: 'plateau-signature', quantite: viande },
-      { id: 'assiette-vegetarienne', quantite: vege },
+      signature(viande),
+      assietteVege(vege),
       sgPlat(sg),
       { id: 'citronnade', quantite: n },
       ...desserts('baklawa', n, sg),
@@ -183,8 +193,8 @@ const RECIPES: Recipe[] = [
     description: 'Plateau signature, samoussas et fatayers à partager, citronnade maison, dessert',
     moments: ['dejeuner'],
     build: ({ n, vege, sg, viande }) => [
-      { id: 'plateau-signature', quantite: viande },
-      { id: 'assiette-vegetarienne', quantite: vege },
+      signature(viande),
+      assietteVege(vege),
       sgPlat(sg),
       { id: 'samoussa-fromage', quantite: partage(n, 4) },
       { id: 'fatayer-epinards', quantite: partage(n, 4) },

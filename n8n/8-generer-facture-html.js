@@ -3,9 +3,10 @@
 const PRIX_SITE_TTC = false;
 const TVA = 0.10;
 
+const prev = $input.first().json;
 const cmd = $('2. Normaliser Commande').first().json;
 const items = Array.isArray(cmd.items) ? cmd.items : [];
-const numero = $json.id_commande || ('CMD' + Date.now());
+const numero = prev.id_commande || ('CMD' + Date.now());
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -84,4 +85,4 @@ bloc('Livraison',
 'Merci pour votre confiance ! · MEDINA FUSION — 288 rue Étienne Marcel, 93170 Bagnolet — SIRET 948 772 264 0001</div>' +
 '</body></html>';
 
-return [{ json: { ...$json, facture_html, sous_total_ht: sousTotalHT, tva: montantTVA, total_ttc: totalTTC } }];
+return [{ json: { ...prev, facture_html, sous_total_ht: sousTotalHT, tva: montantTVA, total_ttc: totalTTC } }];

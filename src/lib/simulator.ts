@@ -68,7 +68,7 @@ const desserts = (id: string, n: number, sg: number): ProposalLine[] => [
   { id: 'salade-de-fruits', quantite: sg },
 ];
 /** Plateaux à options : valeurs par défaut (modifiables ensuite au panier) */
-const assietteVege = (q: number): ProposalLine => ({ id: variantId('assiette-vegetarienne', 'vegetariens'), quantite: q });
+const assietteVege = (q: number): ProposalLine => ({ id: 'assiette-vegetarienne', quantite: q });
 const signature = (q: number): ProposalLine => ({ id: variantId('plateau-signature', 'vegetariens'), quantite: q });
 const shawarmaPlateaux = (q: number): ProposalLine[] => {
   const [viande, poulet] = split(q);

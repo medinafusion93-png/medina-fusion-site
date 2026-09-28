@@ -23,7 +23,9 @@ describe('catalogue', () => {
   it('crée une ligne panier par choix pour les plateaux à options', () => {
     expect(ORDERABLES.get('plateau-shawarma:poulet')?.nom).toBe('Plateau Shawarma — Poulet');
     expect(ORDERABLES.get('plateau-shawarma:viande')?.nom).toBe('Plateau Shawarma — Viande');
-    expect(ORDERABLES.get('assiette-vegetarienne:fromage')?.nom).toBe('Assiette Végétarienne — beignets fromage');
+    expect(ORDERABLES.get('plateau-signature:fromage')?.nom).toBe('Plateau Signature — beignets fromage');
+    // Assiette végétarienne : toujours falafels, pas de choix
+    expect(ORDERABLES.get('assiette-vegetarienne')?.prix).toBe(12.9);
     expect(ORDERABLES.get('plateau-signature:legumes')?.prix).toBe(15.9);
     expect(ORDERABLES.has('plateau-shawarma')).toBe(false);
   });
@@ -41,7 +43,7 @@ describe('catalogue', () => {
     expect(prix('shawarma-poulet')).toBe(7.5);
     expect(prix('formule-sandwich')).toBe(13);
     expect(prix('plateau-signature:viande')).toBe(15.9);
-    expect(prix('assiette-vegetarienne:legumes')).toBe(12.9);
+    expect(prix('assiette-vegetarienne')).toBe(12.9);
     expect(prix('plateau-sans-gluten-vege')).toBe(12.9);
     expect(prix('plateau-sans-gluten-viande')).toBe(15.9);
     expect(prix('brochette-kefta')).toBe(3.5);

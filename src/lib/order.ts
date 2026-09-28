@@ -124,8 +124,8 @@ export async function enregistrerDemande(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        // Seul l’en-tête apikey : compatible clé « anon » (JWT) et nouvelle clé « publishable »
         apikey: SUPABASE.anonKey,
-        Authorization: `Bearer ${SUPABASE.anonKey}`,
       },
       body: JSON.stringify({ p }),
     });

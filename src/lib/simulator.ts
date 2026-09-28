@@ -16,6 +16,8 @@ export interface SimulatorInput {
   moment: Moment;
   /** Nombre de convives végétariens (0..personnes) */
   vege: number;
+  /** Nombre de convives sans gluten (0..personnes − vege) — déjeuner uniquement */
+  sansGluten?: number;
 }
 
 export interface ProposalLine {
@@ -38,6 +40,9 @@ export interface Proposal {
 interface Ctx {
   n: number;
   vege: number;
+  /** Convives sans gluten : plateau sans gluten + dessert sans gluten */
+  sg: number;
+  /** Convives « classiques » : n − vege − sg */
   viande: number;
 }
 
@@ -55,6 +60,13 @@ interface Recipe {
 const partage = (n: number, per: number) => Math.max(1, Math.ceil(n / per));
 /** Répartit la partie « viande » moitié poulet / moitié viande */
 const split = (n: number): [number, number] => [Math.ceil(n / 2), Math.floor(n / 2)];
+/** Plat principal des convives sans gluten */
+const sgPlat = (sg: number): ProposalLine => ({ id: 'plateau-sans-gluten-viande', quantite: sg });
+/** Dessert : `id` pour tous, salade de fruits (sans gluten) pour les convives sans gluten */
+const desserts = (id: string, n: number, sg: number): ProposalLine[] => [
+  { id, quantite: n - sg },
+  { id: 'salade-de-fruits', quantite: sg },
+];
 
 const RECIPES: Recipe[] = [
   // ---------- Petit-déjeuner ----------
@@ -103,12 +115,13 @@ const RECIPES: Recipe[] = [
     titre: 'Sandwich + boisson',
     description: 'Shawarma poulet / viande (falafel pour les végétariens) et une eau',
     moments: ['dejeuner'],
-    build: ({ n, vege, viande }) => {
+    build: ({ n, vege, sg, viande }) => {
       const [poulet, boeuf] = split(viande);
       return [
         { id: 'shawarma-poulet', quantite: poulet },
         { id: 'shawarma-viande', quantite: boeuf },
         { id: 'sandwich-falafel', quantite: vege },
+        sgPlat(sg),
         { id: 'eau-plate', quantite: n },
       ];
     },
@@ -118,15 +131,23 @@ const RECIPES: Recipe[] = [
     titre: 'Formule Sandwich',
     description: 'Sandwich au choix + beignet + boisson + dessert',
     moments: ['dejeuner'],
-    build: ({ n }) => [{ id: 'formule-sandwich', quantite: n }],
+    build: ({ n, sg }) => [
+      { id: 'formule-sandwich', quantite: n - sg },
+      sgPlat(sg),
+      { id: 'eau-plate', quantite: sg },
+      { id: 'salade-de-fruits', quantite: sg },
+    ],
   },
   {
     key: 'formule-sandwich-entrees',
     titre: 'Formule Sandwich + entrées à partager',
     description: 'Formule complète + houmous et taboulé à partager',
     moments: ['dejeuner'],
-    build: ({ n }) => [
-      { id: 'formule-sandwich', quantite: n },
+    build: ({ n, sg }) => [
+      { id: 'formule-sandwich', quantite: n - sg },
+      sgPlat(sg),
+      { id: 'eau-plate', quantite: sg },
+      { id: 'salade-de-fruits', quantite: sg },
       { id: 'houmous', quantite: partage(n, 6) },
       { id: 'taboule', quantite: partage(n, 6) },
     ],
@@ -134,11 +155,12 @@ const RECIPES: Recipe[] = [
   {
     key: 'plateau-shawarma',
     titre: 'Plateau Shawarma + boisson',
-    description: 'Plateau repas individuel (assiette végétarienne pour les végétariens) + citronnade maison',
+    description: 'Plateau repas individuel + citronnade maison',
     moments: ['dejeuner'],
-    build: ({ n, vege, viande }) => [
+    build: ({ n, vege, sg, viande }) => [
       { id: 'plateau-shawarma', quantite: viande },
       { id: 'assiette-vegetarienne', quantite: vege },
+      sgPlat(sg),
       { id: 'citronnade', quantite: n },
     ],
   },
@@ -147,11 +169,12 @@ const RECIPES: Recipe[] = [
     titre: 'Plateau Signature complet',
     description: 'Notre plateau signature + citronnade maison + dessert',
     moments: ['dejeuner'],
-    build: ({ n, vege, viande }) => [
+    build: ({ n, vege, sg, viande }) => [
       { id: 'plateau-signature', quantite: viande },
       { id: 'assiette-vegetarienne', quantite: vege },
+      sgPlat(sg),
       { id: 'citronnade', quantite: n },
-      { id: 'baklawa', quantite: n },
+      ...desserts('baklawa', n, sg),
     ],
   },
   {
@@ -159,13 +182,14 @@ const RECIPES: Recipe[] = [
     titre: 'Plateau Signature + entrées chaudes',
     description: 'Plateau signature, samoussas et fatayers à partager, citronnade maison, dessert',
     moments: ['dejeuner'],
-    build: ({ n, vege, viande }) => [
+    build: ({ n, vege, sg, viande }) => [
       { id: 'plateau-signature', quantite: viande },
       { id: 'assiette-vegetarienne', quantite: vege },
+      sgPlat(sg),
       { id: 'samoussa-fromage', quantite: partage(n, 4) },
       { id: 'fatayer-epinards', quantite: partage(n, 4) },
       { id: 'citronnade', quantite: n },
-      { id: 'patisseries-orientales', quantite: n },
+      ...desserts('patisseries-orientales', n, sg),
     ],
   },
 
@@ -221,7 +245,8 @@ function price(lignes: ProposalLine[]): number {
 export function candidates(input: SimulatorInput): Omit<Proposal, 'tag'>[] {
   const n = Math.max(1, Math.floor(input.personnes));
   const vege = Math.min(n, Math.max(0, Math.floor(input.vege)));
-  const ctx: Ctx = { n, vege, viande: n - vege };
+  const sg = Math.min(n - vege, Math.max(0, Math.floor(input.sansGluten ?? 0)));
+  const ctx: Ctx = { n, vege, sg, viande: n - vege - sg };
   return RECIPES.filter((r) => r.moments.includes(input.moment) && n >= (r.min ?? 1))
     .map((r) => {
       const lignes = r.build(ctx).filter((l) => l.quantite > 0 && ORDERABLES.has(l.id));

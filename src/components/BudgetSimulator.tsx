@@ -40,7 +40,7 @@ function NumberStepper({
   label: string;
 }) {
   const btn =
-    'flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-xl font-bold transition hover:border-gold hover:text-gold disabled:opacity-30';
+    'flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 text-xl font-bold transition hover:border-gold hover:text-gold disabled:opacity-30';
   return (
     <div className="flex items-center gap-2">
       <button type="button" className={btn} onClick={() => onChange(value - 1)} disabled={value <= min} aria-label={`Diminuer ${label}`}>
@@ -122,13 +122,19 @@ export default function BudgetSimulator() {
   const [personnes, setPersonnes] = useState(15);
   const [budget, setBudget] = useState(20);
   const [vege, setVege] = useState(0);
+  const [sansGluten, setSansGluten] = useState(0);
 
-  const vegeEff = Math.min(vege, personnes);
+  const regimes = moment === 'dejeuner';
+  const vegeEff = regimes ? Math.min(vege, personnes) : 0;
+  const sgEff = regimes ? Math.min(sansGluten, personnes - vegeEff) : 0;
   const proposals = useMemo(
-    () => propose({ personnes, budget, moment, vege: moment === 'dejeuner' ? vegeEff : 0 }),
-    [personnes, budget, moment, vegeEff],
+    () => propose({ personnes, budget, moment, vege: vegeEff, sansGluten: sgEff }),
+    [personnes, budget, moment, vegeEff, sgEff],
   );
-  const mini = useMemo(() => budgetMinimum({ personnes, moment, vege: vegeEff }), [personnes, moment, vegeEff]);
+  const mini = useMemo(
+    () => budgetMinimum({ personnes, moment, vege: vegeEff, sansGluten: sgEff }),
+    [personnes, moment, vegeEff, sgEff],
+  );
   const horsBudget = mini !== null && mini > budget;
 
   const label = 'mb-2 block text-sm font-semibold text-neutral-100';
@@ -179,19 +185,34 @@ export default function BudgetSimulator() {
               Nombre de personnes
             </label>
             <NumberStepper id={`${uid}-pers`} value={personnes} onChange={setPersonnes} min={MIN_PERS} max={500} label="le nombre de personnes" />
-            {moment === 'dejeuner' && (
-              <div className="mt-4">
-                <label htmlFor={`${uid}-vege`} className={label}>
-                  🌱 Dont végétariens
-                </label>
-                <NumberStepper
-                  id={`${uid}-vege`}
-                  value={vegeEff}
-                  onChange={(v) => setVege(clampInt(v, 0, personnes))}
-                  min={0}
-                  max={personnes}
-                  label="le nombre de végétariens"
-                />
+            {regimes && (
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                <div>
+                  <label htmlFor={`${uid}-vege`} className={label}>
+                    🌱 Dont végétariens
+                  </label>
+                  <NumberStepper
+                    id={`${uid}-vege`}
+                    value={vegeEff}
+                    onChange={(v) => setVege(clampInt(v, 0, personnes - sgEff))}
+                    min={0}
+                    max={personnes - sgEff}
+                    label="le nombre de végétariens"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`${uid}-sg`} className={label}>
+                    🌾 Dont sans gluten
+                  </label>
+                  <NumberStepper
+                    id={`${uid}-sg`}
+                    value={sgEff}
+                    onChange={(v) => setSansGluten(clampInt(v, 0, personnes - vegeEff))}
+                    min={0}
+                    max={personnes - vegeEff}
+                    label="le nombre de personnes sans gluten"
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -241,6 +262,8 @@ export default function BudgetSimulator() {
           )}
           <p className="mt-4 text-center text-xs text-neutral-400">
             Menus modifiables ensuite dans le panier (ajoutez ou retirez librement). Prix HT, TVA 10 % en sus.
+            {regimes && (vegeEff > 0 || sgEff > 0) && ' Végétarien et sans gluten à la fois ? Choisissez le Plateau Sans Gluten — Végétarien dans le panier.'}
+            {!regimes && ' Allergies ou régimes particuliers : précisez-les dans « Remarques » lors de la commande.'}
           </p>
         </div>
       </div>

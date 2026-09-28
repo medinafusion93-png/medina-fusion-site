@@ -29,6 +29,26 @@ describe('simulateur budget', () => {
     expect(ideal.lignes).toContainEqual({ id: 'assiette-vegetarienne', quantite: 3 });
   });
 
+  it('sans gluten : plateau sans gluten et dessert sans gluten', () => {
+    const res = candidates({ personnes: 10, budget: 30, moment: 'dejeuner', vege: 2, sansGluten: 3 });
+    const sig = res.find((c) => c.key === 'plateau-signature')!;
+    expect(sig.lignes).toContainEqual({ id: 'plateau-signature', quantite: 5 });
+    expect(sig.lignes).toContainEqual({ id: 'assiette-vegetarienne', quantite: 2 });
+    expect(sig.lignes).toContainEqual({ id: 'plateau-sans-gluten-viande', quantite: 3 });
+    expect(sig.lignes).toContainEqual({ id: 'baklawa', quantite: 7 });
+    expect(sig.lignes).toContainEqual({ id: 'salade-de-fruits', quantite: 3 });
+    const formule = res.find((c) => c.key === 'formule-sandwich')!;
+    expect(formule.lignes).toContainEqual({ id: 'formule-sandwich', quantite: 7 });
+    expect(formule.lignes).toContainEqual({ id: 'plateau-sans-gluten-viande', quantite: 3 });
+    // chaque convive a bien un plat principal
+    for (const c of res.filter((c) => !c.key.startsWith('buffet'))) {
+      const plats = c.lignes
+        .filter((l) => /plateau|assiette|shawarma|sandwich|formule-sandwich/.test(l.id))
+        .reduce((s, l) => s + l.quantite, 0);
+      expect(plats, c.key).toBe(10);
+    }
+  });
+
   it('respecte le minimum de personnes des formules', () => {
     const keys = candidates({ personnes: 8, budget: 100, moment: 'evenement', vege: 0 }).map((c) => c.key);
     expect(keys).not.toContain('buffet-classique');

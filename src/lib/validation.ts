@@ -29,6 +29,8 @@ export function validate(info: CustomerInfo, type: OrderType): FieldErrors {
   if (!tel) errors.tel = 'Le téléphone est requis.';
   if (!info.date) errors.date = 'Choisissez une date de livraison.';
   else if (info.date < todayISO()) errors.date = 'La date ne peut pas être passée.';
+  if (!info.heure) errors.heure = 'Choisissez une heure de livraison.';
+  else if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(info.heure)) errors.heure = 'Heure invalide.';
   if (!info.adresse.trim()) errors.adresse = 'Indiquez l’adresse de livraison.';
   return errors;
 }

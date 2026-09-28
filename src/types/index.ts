@@ -63,6 +63,8 @@ export interface CustomerInfo {
   email: string;
   tel: string;
   date: string;
+  /** Heure de livraison souhaitée, format HH:MM */
+  heure: string;
   adresse: string;
   parrain: string;
   notes: string;
@@ -76,6 +78,7 @@ export interface OrderPayload {
   email: string;
   tel: string;
   date: string;
+  heure: string;
   adresse: string;
   notes: string;
   parrain?: string;

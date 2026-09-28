@@ -13,6 +13,7 @@ const EMPTY_INFO: CustomerInfo = {
   email: '',
   tel: '',
   date: '',
+  heure: '',
   adresse: '',
   parrain: '',
   notes: '',

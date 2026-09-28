@@ -60,7 +60,7 @@ bloc('Facturé à',
   '<b style="font-size:15px">' + esc(cmd.entreprise) + '</b><br>' + esc(cmd.contact) +
   (cmd.email ? '<br>' + esc(cmd.email) : '') + (cmd.telephone ? '<br>' + esc(cmd.telephone) : '')) +
 bloc('Livraison',
-  'Date : <b>' + esc(dateFr(cmd.date_livraison)) + '</b><br>' + esc(cmd.adresse || '-') +
+  'Date : <b>' + esc(dateFr(cmd.date_livraison)) + (cmd.heure_livraison ? ' à ' + esc(cmd.heure_livraison) : '') + '</b><br>' + esc(cmd.adresse || '-') +
   (cmd.notes ? '<br><i style="color:#666">Remarques : ' + esc(cmd.notes) + '</i>' : '')) +
 '</div>' +
 

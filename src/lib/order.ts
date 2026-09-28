@@ -14,6 +14,7 @@ export function buildPayload(
     email: info.email.trim(),
     tel: info.tel.trim(),
     date: info.date,
+    heure: info.heure,
     adresse: info.adresse.trim(),
     notes: info.notes.trim(),
     items: lines.map(({ nom, quantite, prix_unitaire }) => ({ nom, quantite, prix_unitaire })),
@@ -64,6 +65,7 @@ export function buildMessage(p: OrderPayload): string {
   field('Email', p.email);
   field('Téléphone', p.tel);
   field('Date souhaitée', formatDate(p.date));
+  field('Heure souhaitée', p.heure);
   field('Adresse de livraison', p.adresse);
   field('Recommandé par', p.parrain);
   field('Remarques', p.notes);

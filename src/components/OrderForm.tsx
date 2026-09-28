@@ -114,7 +114,14 @@ export default function OrderForm() {
           <Field name="email" label="Email" type="email" required autoComplete="email" />
           <Field name="tel" label="Téléphone" type="tel" required autoComplete="tel" placeholder="06 12 34 56 78" />
           <Field name="date" label="Date souhaitée" type="date" required min={todayISO()} />
-          <Field name="adresse" label="Adresse de livraison" required autoComplete="street-address" />
+          <Field name="heure" label="Heure de livraison" type="time" required />
+          <Field
+            name="adresse"
+            label="Adresse de livraison"
+            required
+            autoComplete="street-address"
+            className="sm:col-span-2"
+          />
           <Field
             name="parrain"
             label="Recommandé par"

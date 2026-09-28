@@ -10,7 +10,7 @@ const nbArticles = items.reduce((s, i) => s + Number(i.quantite || 0), 0);
 const nbPlateaux = items
   .filter((i) => /plateau|assiette/i.test(i.nom || ''))
   .reduce((s, i) => s + Number(i.quantite || 0), 0);
-const date = dateFr(body.date);
+const date = dateFr(body.date) + (body.heure ? ' à ' + body.heure : '');
 const adresse = body.adresse || 'Adresse non renseignée';
 const maps = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(body.adresse || '');
 
@@ -90,6 +90,7 @@ return [{
     email: body.email || '',
     telephone: body.tel || '',
     date_livraison: body.date || '',
+    heure_livraison: body.heure || '',
     adresse: body.adresse || '',
     notes: body.notes || '',
     parrain: body.parrain || '',

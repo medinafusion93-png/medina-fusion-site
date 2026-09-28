@@ -18,6 +18,7 @@ const info: CustomerInfo = {
   email: 'sam@acme.fr',
   tel: '06 12 34 56 78',
   date: '2099-01-15',
+  heure: '12:30',
   adresse: '1 rue de Paris',
   parrain: '',
   notes: 'Sans noix',
@@ -33,6 +34,7 @@ describe('payload n8n', () => {
       email: 'sam@acme.fr',
       tel: '06 12 34 56 78',
       date: '2099-01-15',
+      heure: '12:30',
       adresse: '1 rue de Paris',
       notes: 'Sans noix',
       items: [{ nom: 'Houmous', quantite: 2, prix_unitaire: 6 }],
@@ -47,6 +49,7 @@ describe('payload n8n', () => {
     expect(buildMessage(p)).toContain('• 2 × Houmous');
     expect(buildMessage(p)).toMatch(/TOTAL TTC : 13,20\s€/);
     expect(buildMessage(p)).toContain('15/01/2099');
+    expect(buildMessage(p)).toContain('Heure souhaitée : 12:30');
     expect(mailtoUrl(p)).toMatch(/^mailto:Medina\.fusion93@gmail\.com\?subject=/);
     expect(whatsappUrl(p)).toMatch(/^https:\/\/wa\.me\/33662286843\?text=/);
   });
@@ -85,12 +88,12 @@ describe('postToWebhook', () => {
 describe('validation', () => {
   it('commande : champs requis + formats', () => {
     expect(validate(info, 'commande')).toEqual({});
-    const errs = validate({ ...info, email: 'nope', tel: '12', date: '2000-01-01', contact: '' }, 'commande');
-    expect(Object.keys(errs).sort()).toEqual(['contact', 'date', 'email', 'tel']);
+    const errs = validate({ ...info, email: 'nope', tel: '12', date: '2000-01-01', heure: '', contact: '' }, 'commande');
+    expect(Object.keys(errs).sort()).toEqual(['contact', 'date', 'email', 'heure', 'tel']);
   });
 
   it('dégustation : entreprise + (email ou téléphone)', () => {
-    const empty = { ...info, email: '', tel: '', contact: '', date: '', adresse: '' };
+    const empty = { ...info, email: '', tel: '', contact: '', date: '', heure: '', adresse: '' };
     expect(validate(empty, 'degustation')).toHaveProperty('email');
     expect(validate({ ...empty, tel: '0612345678' }, 'degustation')).toEqual({});
     expect(validate({ ...empty, entreprise: '', email: 'a@b.fr' }, 'degustation')).toHaveProperty('entreprise');

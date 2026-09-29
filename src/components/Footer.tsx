@@ -29,6 +29,11 @@ export default function Footer() {
               ★ {CONTACT.googleNote}/5 · {CONTACT.googleAvis} avis Google
             </a>
           </p>
+          <p className="mt-1">
+            <a href={CONTACT.instagramUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
+              📸 Instagram @{CONTACT.instagram} · {CONTACT.instagramAbonnes} abonnés
+            </a>
+          </p>
         </div>
       </div>
       <p className="border-t border-white/5 py-4 text-center text-xs text-neutral-400">

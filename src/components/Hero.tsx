@@ -25,19 +25,32 @@ export default function Hero() {
           Traiteur libano-tunisien
         </p>
 
-        <a
-          href={CONTACT.googleAvisUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-5 inline-flex animate-fade-up items-center gap-2 rounded-full border border-gold/40 bg-white/5 px-4 py-2 text-sm text-neutral-100 transition [animation-delay:200ms] hover:border-gold hover:bg-white/10"
-        >
-          <span className="text-gold" aria-hidden="true">
-            ★★★★★
-          </span>
-          <span>
-            <strong className="text-white">{CONTACT.googleNote}/5</strong> sur Google · {CONTACT.googleAvis} avis
-          </span>
-        </a>
+        <div className="mt-5 flex animate-fade-up flex-wrap justify-center gap-2 [animation-delay:200ms]">
+          <a
+            href={CONTACT.googleAvisUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-white/5 px-4 py-2 text-sm text-neutral-100 transition hover:border-gold hover:bg-white/10"
+          >
+            <span className="text-gold" aria-hidden="true">
+              ★★★★★
+            </span>
+            <span>
+              <strong className="text-white">{CONTACT.googleNote}/5</strong> sur Google · {CONTACT.googleAvis} avis
+            </span>
+          </a>
+          <a
+            href={CONTACT.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-white/5 px-4 py-2 text-sm text-neutral-100 transition hover:border-gold hover:bg-white/10"
+          >
+            <span aria-hidden="true">📸</span>
+            <span>
+              <strong className="text-white">{CONTACT.instagramAbonnes}</strong> abonnés Instagram
+            </span>
+          </a>
+        </div>
 
         <p className="mt-6 max-w-xl animate-fade-up text-base leading-relaxed text-neutral-300 [animation-delay:280ms] sm:text-lg">
           Cuisine fait maison pour vos réunions, séminaires et événements d’entreprise.{' '}

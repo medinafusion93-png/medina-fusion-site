@@ -1,6 +1,7 @@
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ORDERABLES } from '../data/products';
 import { clamp, step, toLines, totals, type Quantities } from '../lib/cart';
+import { appliquerOffres } from '../lib/offres';
 import { lireRef } from '../lib/prospection-ref';
 import { buildPayload, enregistrerDemande, mailtoUrl, postToWebhook, whatsappUrl } from '../lib/order';
 import { validate, type FieldErrors } from '../lib/validation';
@@ -121,7 +122,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   }, []);
   const clearCart = useCallback(() => setQuantities({}), []);
 
-  const lines = useMemo(() => toLines(quantities, ORDERABLES), [quantities]);
+  const lines = useMemo(() => appliquerOffres(toLines(quantities, ORDERABLES)), [quantities]);
   const { count, total, tva, ttc } = useMemo(() => totals(lines), [lines]);
 
   const setField = useCallback((field: keyof CustomerInfo, value: string) => {

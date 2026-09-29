@@ -181,9 +181,15 @@ export default function OrderForm() {
                       <span className="font-semibold text-white">{l.quantite} ×</span> {l.nom}
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
-                      <span className="tabular-nums text-neutral-200">{formatPrice(l.quantite * l.prix_unitaire)} HT</span>
-                      <button type="button" aria-label={`Retirer ${l.nom}`} onClick={() => decrement(l.id)} className="h-8 w-8 rounded-full border border-white/20 hover:border-gold">−</button>
-                      <button type="button" aria-label={`Ajouter ${l.nom}`} onClick={() => increment(l.id)} className="h-8 w-8 rounded-full border border-white/20 hover:border-gold">+</button>
+                      {l.offert ? (
+                        <span className="font-semibold text-emerald-300">Offert 🎁</span>
+                      ) : (
+                        <>
+                          <span className="tabular-nums text-neutral-200">{formatPrice(l.quantite * l.prix_unitaire)} HT</span>
+                          <button type="button" aria-label={`Retirer ${l.nom}`} onClick={() => decrement(l.id)} className="h-8 w-8 rounded-full border border-white/20 hover:border-gold">−</button>
+                          <button type="button" aria-label={`Ajouter ${l.nom}`} onClick={() => increment(l.id)} className="h-8 w-8 rounded-full border border-white/20 hover:border-gold">+</button>
+                        </>
+                      )}
                     </span>
                   </li>
                 ))}

@@ -18,7 +18,7 @@ describe('catalogue', () => {
     });
     expect(FORMULES).toHaveLength(5);
     const lignesPanier = produits.reduce((s, p) => s + (p.options ? p.options.choix.length : 1), 0);
-    expect(ORDERABLES.size).toBe(lignesPanier + FORMULES.length + 1); // + chauffe-plat offert
+    expect(ORDERABLES.size).toBe(lignesPanier + FORMULES.length);
   });
 
   it('crée une ligne panier par choix pour les plateaux à options', () => {

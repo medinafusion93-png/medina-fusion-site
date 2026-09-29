@@ -69,6 +69,8 @@ export interface CartLine {
   nom: string;
   quantite: number;
   prix_unitaire: number;
+  /** Ligne ajoutée automatiquement (offre), non modifiable par le client */
+  offert?: boolean;
 }
 
 export interface CustomerInfo {

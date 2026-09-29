@@ -10,7 +10,7 @@ type Doc = 'devis' | 'facture' | 'cuisine' | 'livraison';
 
 const today = () => new Date().toLocaleDateString('fr-FR');
 
-function EnTete({ titre, numero }: { titre: string; numero?: string | null }) {
+function EnTete({ titre, numero, echeance }: { titre: string; numero?: string | null; echeance?: string }) {
   return (
     <header className="flex items-start justify-between gap-6 border-b-4 border-[#b7791f] pb-5">
       <div>
@@ -35,6 +35,11 @@ function EnTete({ titre, numero }: { titre: string; numero?: string | null }) {
         <p className="text-sm">
           Date : <strong>{today()}</strong>
         </p>
+        {echeance && (
+          <p className="text-sm">
+            Échéance : <strong>{echeance}</strong>
+          </p>
+        )}
       </div>
     </header>
   );
@@ -48,7 +53,7 @@ function DocumentCommercial({ c, doc }: { c: Commande; doc: 'devis' | 'facture' 
 
   return (
     <article className="space-y-6">
-      <EnTete titre={doc === 'devis' ? 'Devis' : 'Facture'} numero={numero} />
+      <EnTete titre={doc === 'devis' ? 'Devis' : 'Facture'} numero={numero} echeance={doc === 'facture' ? 'À réception' : undefined} />
       <div className="grid grid-cols-2 gap-4 text-sm">
         <section className="rounded-lg bg-[#faf7f2] p-4">
           <p className="mb-1 text-xs font-bold uppercase tracking-wider text-[#b7791f]">{doc === 'devis' ? 'Client' : 'Facturé à'}</p>
@@ -91,8 +96,10 @@ function DocumentCommercial({ c, doc }: { c: Commande; doc: 'devis' | 'facture' 
               <tr key={i} className={i % 2 ? 'bg-neutral-50' : ''}>
                 <td className="border-b border-neutral-200 px-3 py-2">{l.nom}</td>
                 <td className="border-b border-neutral-200 px-3 py-2 text-center">{l.quantite}</td>
-                <td className="border-b border-neutral-200 px-3 py-2 text-right tabular-nums">{formatPrice(l.prix_unitaire)}</td>
-                <td className="border-b border-neutral-200 px-3 py-2 text-right font-semibold tabular-nums">{formatPrice(l.quantite * l.prix_unitaire)}</td>
+                <td className="border-b border-neutral-200 px-3 py-2 text-right tabular-nums">{l.prix_unitaire ? formatPrice(l.prix_unitaire) : '—'}</td>
+                <td className="border-b border-neutral-200 px-3 py-2 text-right font-semibold tabular-nums">
+                  {l.prix_unitaire ? formatPrice(l.quantite * l.prix_unitaire) : <span className="text-emerald-700">Offert</span>}
+                </td>
               </tr>
             ))
           )}
@@ -142,7 +149,7 @@ function DocumentCommercial({ c, doc }: { c: Commande; doc: 'devis' | 'facture' 
       ) : (
         <section className="pt-4 text-xs text-neutral-600">
           <p>
-            Statut du règlement : <strong>{paiementInfo(c.paiement_statut).label}</strong>. Paiement à réception de facture.
+            Statut du règlement : <strong>{paiementInfo(c.paiement_statut).label}</strong>. Paiement à réception de facture. Pas d’escompte pour paiement anticipé.
           </p>
           <p>
             En cas de retard de paiement : pénalités au taux de 3 fois le taux d’intérêt légal et indemnité forfaitaire pour

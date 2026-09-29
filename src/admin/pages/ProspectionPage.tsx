@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useId, useMemo, useS
 import { formatPrice } from '../../lib/format';
 import { useAdmin } from '../AdminApp';
 import {
-  apercu, CATEGORIES, domaine, EMAIL_STATUTS, liensRecherche, messageLinkedIn, MODELE, MOTIFS, planifier, selectionner, statsCampagne,
+  apercu, CATEGORIES, domaine, EMAIL_STATUTS, estAdressePerso, FONCTIONS_CIBLES, liensRecherche, messageLinkedIn, MODELE, MOTIFS, planifier, selectionner, statsCampagne,
   STATUTS_PROSPECT, statutProspect, trouverDoublon, VARIABLES, VILLES,
   type Campagne, type CampagneInput, type Envoi, type Exclusion, type Parametres, type Prospect, type ProspectInput, type ProspectStatut,
   type ResultatRecherche,
@@ -369,7 +369,20 @@ function FicheProspect({ p }: { p: Prospect }) {
         {champ('telephone', 'Téléphone', 'tel')}
         {champ('linkedin_entreprise', 'Page LinkedIn de la structure')}
         {champ('contact_nom', 'Contact (nom)')}
-        {champ('contact_fonction', 'Fonction (office manager, RH, assistante de direction…)')}
+        <Field label="Fonction du contact" id={f + 'contact_fonction'}>
+          <Input
+            id={f + 'contact_fonction'}
+            list={f + 'fonctions'}
+            placeholder="Office manager, achats, administratif…"
+            value={v.contact_fonction}
+            onChange={(e) => setV({ ...v, contact_fonction: e.target.value })}
+          />
+          <datalist id={f + 'fonctions'}>
+            {FONCTIONS_CIBLES.map((x) => (
+              <option key={x} value={x} />
+            ))}
+          </datalist>
+        </Field>
         {champ('linkedin_contact', 'Profil LinkedIn du contact')}
         <Field label="Notes" id={f + 'n'}>
           <Textarea id={f + 'n'} value={v.notes} onChange={(e) => setV({ ...v, notes: e.target.value })} />
@@ -422,8 +435,19 @@ function FicheProspect({ p }: { p: Prospect }) {
           Désinscrire
         </button>
       </div>
+      {p.email && estAdressePerso(p.email) && p.email_statut !== 'verifiee' && (
+        <p className="rounded-lg bg-amber-950/60 p-2 text-xs text-amber-100">
+          Adresse de messagerie grand public : elle peut être personnelle. Elle ne sera proposée dans une campagne qu’après vérification
+          qu’il s’agit bien du contact professionnel de la structure.
+        </p>
+      )}
+      <HistoriqueEnvois prospectId={p.id} />
       <div className="rounded-xl bg-white/5 p-3 text-sm">
         <p className="font-semibold text-white">LinkedIn (manuel uniquement)</p>
+        <p className="mt-1 text-xs text-neutral-400">
+          LinkedIn ne propose aucune intégration officielle ouverte permettant d’envoyer des messages automatiquement : envoi à la main,
+          depuis votre compte.
+        </p>
         <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs">
           {p.linkedin_entreprise && (
             <a className="text-gold underline" href={p.linkedin_entreprise} target="_blank" rel="noreferrer">
@@ -455,6 +479,30 @@ function FicheProspect({ p }: { p: Prospect }) {
         </button>
       </div>
       <Message m={msg} />
+    </div>
+  );
+}
+
+const ETAT_ENVOI: Record<Envoi['statut'], string> = { planifie: 'Planifié', envoye: 'Envoyé', echec: 'Échec', annule: 'Annulé' };
+
+/** Envois liés à la fiche prospect */
+function HistoriqueEnvois({ prospectId }: { prospectId: string }) {
+  const { envois, campagnes } = useP();
+  const es = envois.filter((e) => e.prospect_id === prospectId).sort((a, b) => a.planifie_pour.localeCompare(b.planifie_pour));
+  if (!es.length) return <p className="text-xs text-neutral-500">Aucun envoi pour ce prospect.</p>;
+  return (
+    <div className="rounded-xl bg-white/5 p-3 text-sm">
+      <p className="font-semibold text-white">Envois</p>
+      <ul className="mt-1 space-y-1 text-xs text-neutral-300">
+        {es.map((e) => (
+          <li key={e.id}>
+            {campagnes.find((c) => c.id === e.campagne_id)?.nom ?? 'Campagne'} · {e.etape === 1 ? 'Premier message' : 'Relance'} ·{' '}
+            {ETAT_ENVOI[e.statut]} {e.envoye_le ? `le ${dateHeure(e.envoye_le)}` : `prévu ${dateHeure(e.planifie_pour)}`}
+            {e.repondu_le && <span className="text-emerald-300"> · réponse reçue le {dateHeure(e.repondu_le)}</span>}
+            {e.erreur && <span className="text-neutral-500"> · {e.erreur}</span>}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -541,10 +589,10 @@ function ProspectsOnglet() {
 // ---------------------------------------------------------------------------
 // Campagnes
 // ---------------------------------------------------------------------------
-function Stats({ c }: { c: Campagne }) {
+function Stats({ id }: { id: string | null }) {
   const { envois, prospects } = useP();
   const { commandes } = useAdmin();
-  const s = statsCampagne(c.id, envois, prospects, commandes);
+  const s = statsCampagne(id, envois, prospects, commandes);
   const tuiles: [string, string | number][] = [
     ['Planifiés', s.planifies],
     ['Envoyés', s.envoyes],
@@ -552,7 +600,7 @@ function Stats({ c }: { c: Campagne }) {
     ['Réponses', s.reponses],
     ['Dégustations', s.degustations],
     ['Devis', s.devis],
-    ['Clients', s.clients],
+    ['Commandes', s.commandes],
     ['CA HT', formatPrice(s.caHT)],
     ['Désinscrits', s.desinscrits],
     ['Rejetés', s.rejets],
@@ -591,6 +639,12 @@ function CampagnesOnglet() {
         ✉️ Préparer une campagne
       </button>
       <Message m={msg} />
+      {envois.length > 0 && (
+        <Card>
+          <h2 className="font-semibold text-white">Bilan de toutes les campagnes</h2>
+          <Stats id={null} />
+        </Card>
+      )}
       {!campagnes.length && <Empty>Aucune campagne pour l’instant.</Empty>}
       {campagnes.map((c) => {
         const st = STATUT_CAMPAGNE[c.statut];
@@ -667,7 +721,7 @@ function CampagnesOnglet() {
                 )}
               </div>
             </div>
-            {c.statut !== 'brouillon' && <Stats c={c} />}
+            {c.statut !== 'brouillon' && <Stats id={c.id} />}
           </Card>
         );
       })}
@@ -1021,6 +1075,11 @@ function ParametresOnglet() {
       </Card>
       <Card>
         <h2 className="font-semibold text-white">Connexion Gmail</h2>
+        <p className="mt-1 text-xs text-neutral-500">
+          Service retenu : votre propre boîte Gmail / Google Workspace, via l’API officielle, pour des e-mails individuels à faible volume.
+          Les plateformes d’e-mailing (Brevo, Mailjet, Mailchimp, SendGrid…) interdisent dans leurs conditions l’envoi à des contacts qui
+          ne se sont pas inscrits : elles ne conviennent pas à la prospection.
+        </p>
         <p className="mt-1 text-sm text-neutral-400">
           Vérifie réellement l’accès (envoi et lecture des réponses) avec les clés stockées côté serveur. Rien n’est envoyé.
         </p>

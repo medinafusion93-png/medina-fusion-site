@@ -177,6 +177,7 @@ export interface VarsMessage {
   contact: string;
   lien_degustation: string;
   lien_site: string;
+  lien_traiteur: string;
   expediteur: string;
 }
 
@@ -383,7 +384,7 @@ function composer(p: Parametres, pr: ProspectRow, objet: string, corps: string) 
   const lienDegustation = `${site}/?pf=${pr.token}#commande`;
   const lienDesinscription = `${site}/desinscription?t=${pr.token}`;
   const vars: VarsMessage = {
-    entreprise: pr.nom, ville: pr.ville, contact: pr.contact_nom, lien_degustation: lienDegustation, lien_site: site, expediteur: p.expediteur_nom,
+    entreprise: pr.nom, ville: pr.ville, contact: pr.contact_nom, lien_degustation: lienDegustation, lien_site: site, lien_traiteur: `${site}/#carte`, expediteur: p.expediteur_nom,
   };
   const texte = `${remplir(corps, vars)}\n\n${piedDeMessage({ entreprise: pr.nom, adresse: p.adresse_postale, lienDesinscription })}`;
   return { objet: remplir(objet, vars), texte, html: versHtml(texte, lienDegustation), lienDesinscription };

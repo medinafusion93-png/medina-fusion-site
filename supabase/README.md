@@ -49,6 +49,13 @@ affichent une erreur claire et aucun envoi ne part.
 | Gmail API (Google Cloud, OAuth) | envoi, détection des réponses et des adresses rejetées | gratuit |
 | Nom de domaine + Google Workspace (recommandé) | adresse pro `imad@votre-domaine.fr`, SPF/DKIM/DMARC | ~10 €/an + ~7 €/mois |
 
+**Pourquoi Gmail / Google Workspace ?** Les plateformes d’e-mailing (Brevo, Mailjet, Mailchimp, SendGrid…)
+interdisent dans leurs conditions l’envoi à des contacts non inscrits : utilisées pour de la prospection,
+le compte est suspendu. Envoyer depuis sa propre boîte professionnelle, à faible volume, avec des messages
+individuels et une désinscription simple, correspond à la prospection B2B admise en France (CNIL : contact
+professionnel, message en rapport avec sa fonction, opposition possible à tout moment). Les adresses de
+messageries grand public (gmail.com, orange.fr…) sont écartées des campagnes tant qu’elles ne sont pas vérifiées.
+
 **1. Déployer la fonction** (ordinateur, une seule fois) :
 ```
 npx supabase login

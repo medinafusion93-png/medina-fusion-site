@@ -48,6 +48,15 @@ describe('prospection : sélection des destinataires', () => {
     expect(s.retenus.map((p) => p.id)).toEqual(['ok']);
     expect(s.ecartes.map((e) => e.prospect.id)).toEqual(['sans', 'rej', 'exc', 'stop', 'deja', 'dbl']);
   });
+  it('écarte les messageries grand public tant que l’adresse n’est pas vérifiée', () => {
+    const s = selectionner(
+      [P({ id: 'perso', email: 'jean@gmail.com', email_statut: 'trouvee' }), P({ id: 'asso', email: 'asso.quartier@gmail.com', email_statut: 'verifiee' })],
+      new Set(),
+      new Set(),
+    );
+    expect(s.retenus.map((p) => p.id)).toEqual(['asso']);
+    expect(s.ecartes[0]!.raison).toMatch(/personnelle/);
+  });
 });
 
 describe('prospection : calendrier', () => {
@@ -79,7 +88,8 @@ describe('prospection : messages', () => {
     const m = apercu(P({ nom: 'ACME' }), { site_url: 'https://mf.fr/', expediteur_nom: 'Imad – Medina Fusion', adresse_postale: '288 rue Étienne Marcel, 93170 Bagnolet' }, MODELE.objet, MODELE.corps);
     expect(m.objet).toContain('ACME');
     expect(m.texte).toContain('https://mf.fr/?pf=11111111-2222-3333-4444-555555555555#commande');
-    expect(m.texte).toContain('dégustation gratuite pour 2 personnes, sur rendez-vous et après confirmation');
+    expect(m.texte).toContain('dégustation découverte offerte pour 2 personnes, sur rendez-vous et après confirmation');
+    expect(m.texte).toContain('Notre offre traiteur : https://mf.fr/#carte');
     expect(m.texte).toContain('https://mf.fr/desinscription?t=11111111-2222-3333-4444-555555555555');
     expect(m.texte).toContain('Vous recevez ce message car ACME');
     expect(m.texte).not.toMatch(/\{\{/);
@@ -114,7 +124,7 @@ describe('prospection : statistiques réelles', () => {
     ];
     expect(statsCampagne('c1', envois, prospects, commandes)).toEqual({
       prospects: 3, planifies: 1, envoyes: 2, relancesEnvoyees: 1, echecs: 0, annules: 0, reponses: 1,
-      desinscrits: 1, rejets: 0, degustations: 1, devis: 0, clients: 1, caHT: 250,
+      desinscrits: 1, rejets: 0, degustations: 1, devis: 0, clients: 1, commandes: 1, caHT: 250,
     });
   });
 });

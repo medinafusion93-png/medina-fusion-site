@@ -163,25 +163,25 @@ export const VILLES: { id: string; label: string; lat: number; lon: number }[] =
 // ---------------------------------------------------------------------------
 /** Modèle par défaut : court, sans relation antérieure inventée. Le pied de message légal est ajouté par le serveur. */
 export const MODELE = {
-  objet: 'Dégustation offerte pour {{entreprise}} — traiteur libano-tunisien à Bagnolet',
+  objet: 'Dégustation découverte pour {{entreprise}} — traiteur libanais et tunisien à Bagnolet',
   corps: [
     'Bonjour,',
     '',
-    'Je suis Imad, de Medina Fusion, traiteur libano-tunisien installé à Bagnolet. Nous préparons des plateaux repas et buffets pour les équipes, réunions et événements d’entreprise dans l’Est parisien.',
+    'Je suis Imad, de Medina Fusion, traiteur libano-tunisien installé à Bagnolet. Nous préparons des buffets et plateaux-repas libanais et tunisiens pour les entreprises de l’Est parisien : réunions, formations, séminaires et événements d’équipe.',
     '',
-    'Je vous propose une dégustation gratuite pour 2 personnes, sur rendez-vous et après confirmation de notre part, pour que vous puissiez goûter avant de nous confier un repas d’équipe.',
+    'Avant une première commande, je vous propose une dégustation découverte offerte pour 2 personnes, sur rendez-vous et après confirmation de notre part.',
     '',
-    'Notre carte : {{lien_site}}',
+    'Notre offre traiteur : {{lien_traiteur}}',
     'Pour demander la dégustation : {{lien_degustation}}',
     '',
     'Bonne journée,',
     '{{expediteur}}',
   ].join('\n'),
-  objet_relance: 'Re : Dégustation offerte pour {{entreprise}}',
+  objet_relance: 'Re : Dégustation découverte pour {{entreprise}}',
   corps_relance: [
     'Bonjour,',
     '',
-    'Je me permets de revenir vers vous au sujet de la dégustation gratuite pour 2 personnes (sur rendez-vous, après confirmation).',
+    'Je me permets de revenir vers vous au sujet de la dégustation découverte offerte pour 2 personnes (sur rendez-vous, après confirmation).',
     '',
     'Si le sujet ne vous concerne pas, il suffit de me le dire et je ne vous écrirai plus.',
     'Pour la demander : {{lien_degustation}}',
@@ -191,7 +191,16 @@ export const MODELE = {
   ].join('\n'),
 };
 
-export const VARIABLES = ['{{entreprise}}', '{{ville}}', '{{contact}}', '{{lien_site}}', '{{lien_degustation}}', '{{expediteur}}'];
+/** Fonctions à cibler en priorité (commandes de repas d’entreprise) */
+export const FONCTIONS_CIBLES = [
+  'Responsable administratif',
+  'Office manager',
+  'Responsable achats',
+  'Organisation d’événements',
+  'Assistant(e) de direction',
+];
+
+export const VARIABLES = ['{{entreprise}}', '{{ville}}', '{{contact}}', '{{lien_site}}', '{{lien_traiteur}}', '{{lien_degustation}}', '{{expediteur}}'];
 
 export function remplir(modele: string, v: Record<string, string>): string {
   return modele.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k: string) => v[k] ?? '');
@@ -210,7 +219,7 @@ export function piedDeMessage(entreprise: string, adresse: string, lienDesinscri
 export function apercu(p: Pick<Prospect, 'nom' | 'ville' | 'contact_nom' | 'token'>, params: Pick<Parametres, 'site_url' | 'expediteur_nom' | 'adresse_postale'>, objet: string, corps: string) {
   const site = (params.site_url || 'https://votre-site').replace(/\/$/, '');
   const lienDesinscription = `${site}/desinscription?t=${p.token}`;
-  const vars = { entreprise: p.nom, ville: p.ville, contact: p.contact_nom, lien_site: site, lien_degustation: `${site}/?pf=${p.token}#commande`, expediteur: params.expediteur_nom };
+  const vars = { entreprise: p.nom, ville: p.ville, contact: p.contact_nom, lien_site: site, lien_traiteur: `${site}/#carte`, lien_degustation: `${site}/?pf=${p.token}#commande`, expediteur: params.expediteur_nom };
   return {
     objet: remplir(objet, vars),
     texte: `${remplir(corps, vars)}\n\n${piedDeMessage(p.nom, params.adresse_postale, lienDesinscription)}`,
@@ -222,8 +231,8 @@ export function messageLinkedIn(p: Pick<Prospect, 'nom' | 'contact_nom'>, site: 
   const bonjour = p.contact_nom ? `Bonjour ${p.contact_nom.split(' ')[0]},` : 'Bonjour,';
   return [
     bonjour,
-    `Je suis Imad, de Medina Fusion, traiteur libano-tunisien à Bagnolet. Nous préparons des plateaux repas et buffets pour les équipes.`,
-    `Je propose à ${p.nom} une dégustation gratuite pour 2 personnes, sur rendez-vous. Notre carte : ${site || '(lien du site)'}`,
+    `Je suis Imad, de Medina Fusion, traiteur libano-tunisien à Bagnolet. Nous préparons des buffets et plateaux-repas libanais et tunisiens pour les entreprises.`,
+    `Je propose à ${p.nom} une dégustation découverte offerte pour 2 personnes, sur rendez-vous et après confirmation. Notre offre traiteur : ${site || '(lien du site)'}`,
     `Bonne journée, ${expediteur.split('–')[0]!.trim() || 'Imad'}`,
   ].join('\n');
 }
@@ -233,7 +242,7 @@ export function liensRecherche(p: Pick<Prospect, 'nom' | 'ville'>) {
   const q = `${p.nom} ${p.ville}`.trim();
   return {
     linkedinEntreprise: `https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(p.nom)}`,
-    linkedinPersonnes: `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${p.nom} office manager OR assistante de direction OR RH`)}`,
+    linkedinPersonnes: `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${p.nom} office manager OR achats OR administratif OR événementiel`)}`,
     google: `https://www.google.com/search?q=${encodeURIComponent(`${q} site officiel`)}`,
   };
 }
@@ -279,6 +288,10 @@ export function trouverDoublon(
 // ---------------------------------------------------------------------------
 // Sélection des destinataires et calendrier
 // ---------------------------------------------------------------------------
+/** Messageries grand public : l’adresse peut être personnelle (règles B2C, consentement requis) */
+const WEBMAILS = /@(gmail|googlemail|hotmail|outlook|live|msn|yahoo|ymail|icloud|me|aol|free|orange|wanadoo|sfr|neuf|laposte|bbox|gmx|protonmail|proton)\./i;
+export const estAdressePerso = (email: string) => WEBMAILS.test(email);
+
 export interface Selection {
   retenus: Prospect[];
   ecartes: { prospect: Prospect; raison: string }[];
@@ -294,6 +307,7 @@ export function selectionner(candidats: Prospect[], exclusions: Set<string>, dej
     let raison = '';
     if (!email) raison = 'pas d’e-mail';
     else if (p.email_statut === 'rejetee' || p.email_statut === 'a_trouver') raison = EMAIL_STATUTS[p.email_statut].label;
+    else if (estAdressePerso(email) && p.email_statut !== 'verifiee') raison = 'adresse personnelle possible : à vérifier';
     else if (exclusions.has(email)) raison = 'dans la liste d’exclusion';
     else if (STATUTS_STOP.includes(p.statut)) raison = `statut « ${statutProspect(p.statut).label} »`;
     else if (dejaContactes.has(p.id)) raison = 'déjà contacté';
@@ -378,11 +392,13 @@ export interface StatsCampagne {
   degustations: number;
   devis: number;
   clients: number;
+  commandes: number;
   caHT: number;
 }
 
-export function statsCampagne(campagneId: string, envois: Envoi[], prospects: Prospect[], commandes: (Commande & { prospect_id?: string | null })[]): StatsCampagne {
-  const es = envois.filter((e) => e.campagne_id === campagneId);
+/** campagneId null = toutes les campagnes */
+export function statsCampagne(campagneId: string | null, envois: Envoi[], prospects: Prospect[], commandes: (Commande & { prospect_id?: string | null })[]): StatsCampagne {
+  const es = campagneId ? envois.filter((e) => e.campagne_id === campagneId) : envois;
   const ids = new Set(es.map((e) => e.prospect_id));
   const contactes = new Set(es.filter((e) => e.statut === 'envoye').map((e) => e.prospect_id));
   const ps = prospects.filter((p) => ids.has(p.id));
@@ -401,6 +417,7 @@ export function statsCampagne(campagneId: string, envois: Envoi[], prospects: Pr
     degustations: new Set(cmd.filter((c) => c.type === 'degustation').map((c) => c.prospect_id)).size,
     devis: new Set(cmd.filter((c) => c.statut === 'devis_envoye' || c.numero_devis).map((c) => c.prospect_id)).size,
     clients: new Set(ventes.map((c) => c.prospect_id)).size,
+    commandes: ventes.length,
     caHT: Math.round(ventes.reduce((s, c) => s + c.total_ht, 0) * 100) / 100,
   };
 }

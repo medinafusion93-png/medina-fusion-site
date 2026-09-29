@@ -129,5 +129,16 @@ await expectOk('connecté non admin : ajout de stock sans effet',
   `insert into mouvements (ingredient_id, type, quantite) select id, 'entree', 100 from ingredients; select 1`, 'authenticated', PIRATE);
 await expectOk('… stock inchangé', `select stock::float p from ingredients where nom='Poulet'`, null, null, (r) => (r[0].p === 14.7 ? null : JSON.stringify(r[0])));
 
+// ---------------- Module rentabilité ----------------
+const finance = fs.readFileSync(new URL('./finance.sql', import.meta.url), 'utf8');
+await db.exec(finance);
+await db.exec(finance);
+console.log('✔ finance.sql appliqué deux fois sans erreur');
+await expectOk('admin : ajoute une charge', `insert into charges (libelle, montant, type) values ('Loyer', 1200, 'mensuel'); select count(*)::int n from charges`,
+  'authenticated', ADMIN, (r) => (r[0].n === 1 ? null : `n=${r[0].n}`));
+await expectFail('visiteur : lecture charges', 'select * from charges', 'anon');
+await expectOk('connecté non admin : ne voit aucune charge', 'select count(*)::int n from charges', 'authenticated', PIRATE, (r) => (r[0].n === 0 ? null : `voit ${r[0].n}`));
+await expectFail('type de charge invalide', `insert into charges (libelle, montant, type) values ('X', 1, 'autre')`, 'authenticated', ADMIN);
+
 console.log(failed ? `\n${failed} vérification(s) en échec` : '\nToutes les vérifications de sécurité passent.');
 process.exit(failed ? 1 : 0);

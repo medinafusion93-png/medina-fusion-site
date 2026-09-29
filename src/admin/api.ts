@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE } from '../data/config';
-import type { Client, ClientInput, Commande, CommandeInput, Ingredient, IngredientInput, Mouvement, RecetteLigne } from './types';
+import type { Charge, ChargeInput, Client, ClientInput, Commande, CommandeInput, Ingredient, IngredientInput, Mouvement, RecetteLigne } from './types';
 
 /** Accès aux données de l’espace admin (Supabase en production, mémoire en mode démo) */
 export interface AdminApi {
@@ -30,6 +30,11 @@ export interface AdminApi {
   saveRecette(produit: string, lignes: { ingredient_id: string; quantite: number }[]): Promise<void>;
   listMouvements(limit?: number): Promise<Mouvement[]>;
   addMouvement(m: { ingredient_id: string; type: Mouvement['type']; quantite: number; note: string }): Promise<void>;
+
+  // Rentabilité
+  listCharges(): Promise<Charge[]>;
+  saveCharge(c: ChargeInput): Promise<Charge>;
+  deleteCharge(id: string): Promise<void>;
 }
 
 const num = (v: unknown) => (v === null || v === undefined || v === '' ? 0 : Number(v));
@@ -142,6 +147,18 @@ function supabaseApi(sb: SupabaseClient): AdminApi {
     async addMouvement(m) {
       unwrap(await sb.from('mouvements').insert(m));
     },
+    async listCharges() {
+      const rows = unwrap(await sb.from('charges').select('*').order('created_at'));
+      return (rows as Charge[]).map((c) => ({ ...c, montant: num(c.montant) }));
+    },
+    async saveCharge({ id, ...c }) {
+      const q = id ? sb.from('charges').update(c).eq('id', id) : sb.from('charges').insert(c);
+      const r = unwrap(await q.select().single()) as Charge;
+      return { ...r, montant: num(r.montant) };
+    },
+    async deleteCharge(id) {
+      unwrap(await sb.from('charges').delete().eq('id', id));
+    },
   };
 }
 
@@ -192,6 +209,14 @@ function demoApi(): AdminApi {
     { produit: 'Citronnade maison', ingredient_id: idOf('Citrons'), quantite: 0.05 },
   ];
   const mouvements: Mouvement[] = [];
+  const charge = (libelle: string, montant: number, type: Charge['type'], categorie: string): Charge => ({
+    id: uid(), created_at: d(-60), libelle, montant, type, categorie,
+  });
+  const charges: Charge[] = [
+    charge('Loyer', 1200, 'mensuel', 'Local'), charge('Salaires', 2400, 'mensuel', 'Personnel'),
+    charge('Électricité / gaz', 280, 'mensuel', 'Énergie'), charge('Assurance', 60, 'mensuel', 'Divers'),
+    charge('Abonnements (n8n, logiciels)', 45, 'mensuel', 'Divers'), charge('Livraison (essence, temps)', 6, 'par_commande', 'Livraison'),
+  ];
   const VENTE = ['confirmee', 'en_preparation', 'livree'];
   const bouger = (commandeId: string, lignes: { nom: string; quantite: number }[], signe: 1 | -1, note: string) => {
     for (const l of lignes)
@@ -316,6 +341,22 @@ function demoApi(): AdminApi {
       const i = ingredients.find((x) => x.id === m.ingredient_id);
       if (i) i.stock = Math.round((i.stock + m.quantite) * 1000) / 1000;
       mouvements.unshift({ ...m, id: uid(), created_at: new Date().toISOString(), commande_id: null });
+    },
+    async listCharges() {
+      return charges.map((c) => ({ ...c }));
+    },
+    async saveCharge({ id, ...c }) {
+      if (id) {
+        const k = charges.findIndex((x) => x.id === id);
+        charges[k] = { ...charges[k]!, ...c };
+        return charges[k]!;
+      }
+      const n: Charge = { ...c, id: uid(), created_at: new Date().toISOString() };
+      charges.push(n);
+      return n;
+    },
+    async deleteCharge(id) {
+      charges.splice(charges.findIndex((x) => x.id === id), 1);
     },
   };
 }

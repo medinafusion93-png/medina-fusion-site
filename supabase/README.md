@@ -25,6 +25,11 @@ Après `schema.sql`, exécuter **[`stock.sql`](./stock.sql)** de la même façon
   selon les recettes (quantité par portion), et remonte si elle est annulée ou repasse en devis.
 - Les demandes du site (statut « Demande reçue ») ne touchent pas au stock.
 
+## Module rentabilité (charges, bénéfice, seuil)
+
+Exécuter **[`finance.sql`](./finance.sql)** (SQL Editor → Run). Page admin **💰 Rentabilité** :
+bénéfice estimé du mois, seuil de rentabilité, rentabilité par plat, simulation « Et si… ? », historique 6 mois.
+
 ## Sécurité
 
 - La clé **anon** est publique par conception : toute la protection est **côté serveur** (Row Level Security).

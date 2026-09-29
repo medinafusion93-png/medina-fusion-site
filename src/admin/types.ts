@@ -102,3 +102,15 @@ export interface Mouvement {
 }
 
 export const UNITES = ['kg', 'g', 'L', 'cl', 'pièce', 'botte', 'boîte'];
+
+// ---------------- Rentabilité ----------------
+export interface Charge {
+  id: string;
+  created_at: string;
+  libelle: string;
+  /** Montant HT : par mois (type mensuel) ou par commande vendue */
+  montant: number;
+  type: 'mensuel' | 'par_commande';
+  categorie: string;
+}
+export type ChargeInput = Omit<Charge, 'id' | 'created_at'> & { id?: string };

@@ -7,8 +7,9 @@ import CommandeForm from './pages/CommandeForm';
 import CommandesPage from './pages/CommandesPage';
 import Dashboard from './pages/Dashboard';
 import PrintPage from './pages/PrintPage';
+import RentabilitePage from './pages/RentabilitePage';
 import StockPage from './pages/StockPage';
-import type { Client, ClientInput, Commande, CommandeInput, Ingredient, RecetteLigne } from './types';
+import type { Charge, Client, ClientInput, Commande, CommandeInput, Ingredient, RecetteLigne } from './types';
 import { Field, Input, Spinner } from './ui';
 
 // ---------------------------------------------------------------------------
@@ -51,6 +52,8 @@ interface AdminData {
   ingredients: Ingredient[] | null;
   recettes: RecetteLigne[];
   ingredientById: Map<string, Ingredient>;
+  // Rentabilité (null = module non installé : exécuter supabase/finance.sql)
+  charges: Charge[] | null;
 }
 
 const DataContext = createContext<AdminData | null>(null);
@@ -66,6 +69,7 @@ function DataProvider({ api, children }: { api: AdminApi; children: ReactNode })
   const [error, setError] = useState('');
   const [ingredients, setIngredients] = useState<Ingredient[] | null>(null);
   const [recettes, setRecettes] = useState<RecetteLigne[]>([]);
+  const [charges, setCharges] = useState<Charge[] | null>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -80,6 +84,11 @@ function DataProvider({ api, children }: { api: AdminApi; children: ReactNode })
         setRecettes(rec);
       } catch {
         setIngredients(null);
+      }
+      try {
+        setCharges(await api.listCharges());
+      } catch {
+        setCharges(null);
       }
     } catch (e) {
       setError((e as Error).message);
@@ -119,8 +128,9 @@ function DataProvider({ api, children }: { api: AdminApi; children: ReactNode })
       ingredients,
       recettes,
       ingredientById: new Map((ingredients ?? []).map((i) => [i.id, i])),
+      charges,
     };
-  }, [api, clients, commandes, reload, ingredients, recettes]);
+  }, [api, clients, commandes, reload, ingredients, recettes, charges]);
 
   if (error)
     return (
@@ -222,7 +232,10 @@ const TABS = [
   { path: 'clients', label: 'Clients', short: 'Clients', icon: '👥' },
   { path: 'calendrier', label: 'Calendrier', short: 'Agenda', icon: '📅' },
   { path: 'stock', label: 'Stock', short: 'Stock', icon: '🥕' },
+  { path: 'rentabilite', label: 'Rentabilité', short: 'Bénéfice', icon: '💰' },
 ];
+/** Onglets de la barre mobile (la rentabilité est accessible depuis l’accueil) */
+const MOBILE_TABS = TABS.filter((t) => t.path !== 'rentabilite');
 
 function Shell({ email, api, route, children }: { email: string; api: AdminApi; route: string[]; children: ReactNode }) {
   const current = route[0] ?? '';
@@ -249,12 +262,12 @@ function Shell({ email, api, route, children }: { email: string; api: AdminApi; 
                 key={t.path}
                 href={`#/${t.path}`}
                 aria-current={current === t.path ? 'page' : undefined}
-                className={`whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition lg:px-4 ${
+                className={`whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-semibold transition xl:px-3 ${
                   current === t.path ? 'bg-gold text-ink' : 'text-neutral-200 hover:bg-white/10'
                 }`}
               >
-                {t.icon} <span className="lg:hidden">{t.short}</span>
-                <span className="hidden lg:inline">{t.label}</span>
+                {t.icon} <span className="xl:hidden">{t.short}</span>
+                <span className="hidden xl:inline">{t.label}</span>
                 {t.path === 'commandes' && aTraiter > 0 && (
                   <span className="ml-1.5 rounded-full bg-sky-500 px-1.5 text-xs text-white">{aTraiter}</span>
                 )}
@@ -265,10 +278,10 @@ function Shell({ email, api, route, children }: { email: string; api: AdminApi; 
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <a href="#/commandes/nouvelle" className="btn-gold hidden px-4 sm:inline-flex">
+            <a href="#/commandes/nouvelle" className="btn-gold hidden whitespace-nowrap px-4 sm:inline-flex">
               + Commande
             </a>
-            <span className="hidden max-w-[180px] truncate text-xs text-neutral-400 xl:inline">{email}</span>
+            <span className="hidden max-w-[180px] truncate text-xs text-neutral-400 2xl:inline">{email}</span>
             <button type="button" onClick={() => void api.signOut()} className="btn-outline px-3 text-xs">
               Déconnexion
             </button>
@@ -280,13 +293,13 @@ function Shell({ email, api, route, children }: { email: string; api: AdminApi; 
 
       {/* Barre d’onglets mobile */}
       <nav aria-label="Sections" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-white/10 bg-ink/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-        {TABS.slice(0, 2).map((t) => (
+        {MOBILE_TABS.slice(0, 2).map((t) => (
           <TabLink key={t.path} t={t} active={current === t.path} badge={t.path === 'commandes' ? aTraiter : 0} />
         ))}
         <a href="#/commandes/nouvelle" className="flex flex-col items-center justify-center py-2 text-gold" aria-label="Nouvelle commande">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold text-2xl font-bold text-ink">+</span>
         </a>
-        {TABS.slice(2).map((t) => (
+        {MOBILE_TABS.slice(2).map((t) => (
           <TabLink key={t.path} t={t} active={current === t.path} badge={t.path === 'stock' ? nbCourses : 0} />
         ))}
       </nav>
@@ -318,6 +331,7 @@ function Router({ route }: { route: string[] }) {
   if (section === 'clients') return <ClientsPage />;
   if (section === 'calendrier') return <CalendarPage />;
   if (section === 'stock') return <StockPage />;
+  if (section === 'rentabilite') return <RentabilitePage />;
   if (section === 'imprimer' && id && extra) return <PrintPage id={id} doc={extra} />;
   return <Dashboard />;
 }

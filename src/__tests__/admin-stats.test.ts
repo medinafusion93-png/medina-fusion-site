@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dashboardStats, matches, montants, periodes, telCle, totalHT } from '../admin/stats';
+import { clientsARelancer, dashboardStats, matches, montants, paiementsEnRetard, periodes, telCle, totalHT } from '../admin/stats';
 import type { Commande } from '../admin/types';
 
 const base: Commande = {
@@ -69,5 +69,22 @@ describe('admin : recherche et doublons', () => {
   });
   it('clé téléphone identique pour 06… et +33 6…', () => {
     expect(telCle('06 12 34 56 78')).toBe(telCle('+33 6 12 34 56 78'));
+  });
+});
+
+describe('relances', () => {
+  const T = new Date(2026, 9, 14);
+  const cs = [
+    c({ client_id: 'a', date_prestation: '2026-07-01', statut: 'livree', paiement_statut: 'paye', montant_encaisse: 0, total_ht: 0 }),
+    c({ client_id: 'b', date_prestation: '2026-07-01', statut: 'livree' }),
+    c({ client_id: 'b', date_prestation: '2026-10-20', statut: 'confirmee' }), // commande à venir → pas de relance
+    c({ client_id: 'c', date_prestation: '2026-10-01', statut: 'livree' }), // récent
+    c({ client_id: 'd', date_prestation: '2026-10-01', statut: 'livree', total_ht: 100, montant_encaisse: 30 }),
+  ];
+  it('clients sans commande depuis 45 jours', () => {
+    expect(clientsARelancer(cs, 45, T).map((x) => x.client_id)).toEqual(['a']);
+  });
+  it('paiements en retard', () => {
+    expect(paiementsEnRetard(cs, 7, T).map((x) => x.client_id)).toEqual(['d']);
   });
 });

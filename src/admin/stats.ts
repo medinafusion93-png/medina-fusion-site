@@ -131,3 +131,29 @@ export function coutMatiere(
 
 /** Quantité à racheter pour revenir à 2 × le seuil */
 export const quantiteAchat = (i: Ingredient) => Math.max(0, Math.round((i.seuil * 2 - i.stock) * 1000) / 1000);
+
+// ---------------- Relances ----------------
+/** Clients dont la dernière vente date de plus de `jours` jours (et sans commande à venir) */
+export function clientsARelancer(commandes: Commande[], jours = 45, today = new Date()) {
+  const limite = isoDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() - jours));
+  const jour = isoDate(today);
+  const derniere = new Map<string, string>();
+  const futur = new Set<string>();
+  for (const c of commandes) {
+    if (!c.client_id || c.statut === 'annulee' || !c.date_prestation) continue;
+    if (c.date_prestation >= jour) futur.add(c.client_id);
+    if (estVente(c) && c.date_prestation > (derniere.get(c.client_id) ?? '')) derniere.set(c.client_id, c.date_prestation);
+  }
+  return [...derniere.entries()]
+    .filter(([id, d]) => d < limite && !futur.has(id))
+    .map(([client_id, derniere_date]) => ({ client_id, derniere_date }))
+    .sort((a, b) => a.derniere_date.localeCompare(b.derniere_date));
+}
+
+/** Ventes passées depuis plus de `jours` jours avec un reste à payer */
+export function paiementsEnRetard(commandes: Commande[], jours = 7, today = new Date()) {
+  const limite = isoDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() - jours));
+  return commandes
+    .filter((c) => estVente(c) && !!c.date_prestation && c.date_prestation < limite && montants(c).reste > 0)
+    .sort((a, b) => (a.date_prestation ?? '').localeCompare(b.date_prestation ?? ''));
+}

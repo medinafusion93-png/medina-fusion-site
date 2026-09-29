@@ -22,6 +22,8 @@ function EnTete({ titre, numero, echeance }: { titre: string; numero?: string | 
           <br />
           SIRET : {CONTACT.siret}
           <br />
+          N° TVA : {CONTACT.tvaIntra}
+          <br />
           {CONTACT.email} · {CONTACT.whatsappAffiche}
         </p>
       </div>
@@ -149,7 +151,7 @@ function DocumentCommercial({ c, doc }: { c: Commande; doc: 'devis' | 'facture' 
       ) : (
         <section className="pt-4 text-xs text-neutral-600">
           <p>
-            Statut du règlement : <strong>{paiementInfo(c.paiement_statut).label}</strong>. Paiement à réception de facture. Pas d’escompte pour paiement anticipé.
+            Statut du règlement : <strong>{paiementInfo(c.paiement_statut).label}</strong>. Paiement à réception de facture par virement, carte bancaire, chèque ou espèces (espèces limitées à 1 000 € entre professionnels). Pas d’escompte pour paiement anticipé.
           </p>
           <p>
             En cas de retard de paiement : pénalités au taux de 3 fois le taux d’intérêt légal et indemnité forfaitaire pour
@@ -158,7 +160,7 @@ function DocumentCommercial({ c, doc }: { c: Commande; doc: 'devis' | 'facture' 
         </section>
       )}
       <footer className="border-t border-neutral-200 pt-3 text-center text-[11px] text-neutral-500">
-        Merci pour votre confiance · MEDINA FUSION — {CONTACT.adresse} — SIRET {CONTACT.siret}
+        Merci pour votre confiance · MEDINA FUSION — {CONTACT.adresse} — SIRET {CONTACT.siret} — TVA {CONTACT.tvaIntra}
       </footer>
     </article>
   );

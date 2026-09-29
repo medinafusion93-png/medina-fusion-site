@@ -9,6 +9,7 @@ export const CONTACT = {
   whatsappIntl: '33662286843',
   adresse: '288 rue Étienne Marcel, 93170 Bagnolet',
   siret: '948 772 264 0001',
+  tvaIntra: 'FR20948772264',
   googleAvisUrl: 'https://share.google/HVEHFzjLZ2GRYmoaY',
   googleNote: '4,8',
   googleAvis: '700+',

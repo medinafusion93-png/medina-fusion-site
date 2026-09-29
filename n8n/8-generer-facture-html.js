@@ -11,7 +11,7 @@ const SOCIETE = {
   adresse: '288 rue Étienne Marcel',
   ville: '93170 Bagnolet',
   siret: '948 772 264 0001',
-  tvaIntra: '', // ex. FR00948772264 — à renseigner (numéro de TVA intracommunautaire)
+  tvaIntra: 'FR20948772264', // numéro de TVA intracommunautaire
   email: 'Medina.fusion93@gmail.com',
   tel: '06 62 28 68 43',
 };
@@ -134,14 +134,15 @@ ligneTotal('TVA ' + Math.round(TVA * 100) + ' %', eur(montantTVA)) +
 '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e2d8;border-radius:8px"><tr>' +
 '<td style="padding:12px 16px;font-size:11px;line-height:1.6;color:#555">' +
 '<div style="' + etiquette + '">Conditions de règlement</div>' +
-'Paiement à réception de facture. Pas d’escompte pour paiement anticipé.<br>' +
+'Paiement à réception de facture. Moyens de paiement acceptés : virement bancaire, carte bancaire, chèque, espèces ' +
+'(dans la limite de 1 000 € entre professionnels). Pas d’escompte pour paiement anticipé.<br>' +
 'En cas de retard de paiement : pénalités au taux de 3 fois le taux d’intérêt légal et indemnité forfaitaire pour frais de ' +
 'recouvrement de 40 € (art. L441-10 et D441-5 du Code de commerce). Prix en euros hors taxes, TVA 10 % en sus.' +
 '</td></tr></table></td></tr>' +
 
 // 6. Pied de page
 '<tr><td style="padding-top:22px;border-top:1px solid #e8e2d8;text-align:center;font-size:11px;color:#888;line-height:1.6">' +
-'Merci pour votre confiance !<br>' + SOCIETE.nom + ' — ' + SOCIETE.adresse + ', ' + SOCIETE.ville + ' — SIRET ' + SOCIETE.siret +
+'Merci pour votre confiance !<br>' + SOCIETE.nom + ' — ' + SOCIETE.adresse + ', ' + SOCIETE.ville + ' — SIRET ' + SOCIETE.siret + (SOCIETE.tvaIntra ? ' — TVA ' + SOCIETE.tvaIntra : '') +
 '</td></tr>' +
 
 '</table></td></tr></table></body></html>';

@@ -7,6 +7,7 @@ export function buildPayload(
   lines: CartLine[],
   total: number,
   type: OrderType,
+  ref = '',
 ): OrderPayload {
   const payload: OrderPayload = {
     entreprise: info.entreprise.trim(),
@@ -23,6 +24,7 @@ export function buildPayload(
   };
   const parrain = info.parrain.trim();
   if (parrain) payload.parrain = parrain;
+  if (ref) payload.ref = ref;
   return payload;
 }
 

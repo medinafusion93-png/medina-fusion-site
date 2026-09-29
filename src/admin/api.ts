@@ -362,13 +362,19 @@ function demoApi(): AdminApi {
 }
 
 let instance: AdminApi | null = null;
+let client: SupabaseClient | null = null;
+
+/** Client Supabase partagé (null en mode démo) */
+export function getClient(): SupabaseClient | null {
+  if (!client && SUPABASE.url && SUPABASE.anonKey)
+    client = createClient(SUPABASE.url, SUPABASE.anonKey, { auth: { persistSession: true, autoRefreshToken: true } });
+  return client;
+}
 
 export function getApi(): AdminApi {
   if (!instance) {
-    instance =
-      SUPABASE.url && SUPABASE.anonKey
-        ? supabaseApi(createClient(SUPABASE.url, SUPABASE.anonKey, { auth: { persistSession: true, autoRefreshToken: true } }))
-        : demoApi();
+    const sb = getClient();
+    instance = sb ? supabaseApi(sb) : demoApi();
   }
   return instance;
 }

@@ -140,5 +140,50 @@ await expectFail('visiteur : lecture charges', 'select * from charges', 'anon');
 await expectOk('connecté non admin : ne voit aucune charge', 'select count(*)::int n from charges', 'authenticated', PIRATE, (r) => (r[0].n === 0 ? null : `voit ${r[0].n}`));
 await expectFail('type de charge invalide', `insert into charges (libelle, montant, type) values ('X', 1, 'autre')`, 'authenticated', ADMIN);
 
+// ---------------- Module prospection ----------------
+await db.exec(schema); // schema.sql relancé (colonne commandes.ref)
+const prosp = fs.readFileSync(new URL('./prospection.sql', import.meta.url), 'utf8');
+await db.exec(prosp);
+await db.exec(prosp);
+console.log('✔ prospection.sql appliqué deux fois sans erreur');
+await expectOk('admin : ajoute 2 prospects', `
+  insert into prospects (siren, nom, email, email_statut, source) values
+    ('111111111', 'Alpha Formation', 'Contact@Alpha.fr', 'trouvee', 'test'),
+    ('222222222', 'Beta Coworking', 'hello@beta.fr', 'verifiee', 'test');
+  select email from prospects where siren = '111111111'`, ...A, (r) => (r[0].email === 'contact@alpha.fr' ? null : r[0].email));
+await expectFail('doublon SIREN refusé', `insert into prospects (siren, nom) values ('111111111', 'Alpha bis')`, ...A);
+await expectOk('admin : crée une campagne + envoi planifié', `
+  insert into campagnes (nom, statut) values ('Test', 'programmee');
+  insert into envois (campagne_id, prospect_id, email)
+    select c.id, p.id, p.email from campagnes c, prospects p where p.siren = '111111111';
+  select count(*)::int n from envois where statut = 'planifie'`, ...A, (r) => (r[0].n === 1 ? null : `n=${r[0].n}`));
+await expectFail('visiteur : lecture prospects', 'select * from prospects', 'anon');
+await expectFail('visiteur : lecture exclusions', 'select * from prospection_exclusions', 'anon');
+await expectOk('connecté non admin : ne voit aucun prospect', 'select count(*)::int n from prospects', 'authenticated', PIRATE, (r) => (r[0].n === 0 ? null : `voit ${r[0].n}`));
+await expectFail('admin : ne peut pas se déclarer « envoi opérationnel »', `update prospection_parametres set envoi_operationnel = true`, ...A);
+await expectOk('admin : peut régler la limite quotidienne', `update prospection_parametres set limite_jour = 20; select limite_jour from prospection_parametres`, ...A, (r) => (r[0].limite_jour === 20 ? null : 'non modifié'));
+const tok = async (siren) => (await run(`select token::text t from prospects where siren = '${siren}'`))[0].t;
+const tokA = await tok('111111111');
+const tokB = await tok('222222222');
+await expectOk('visiteur : désinscription par jeton', `select prospect_desinscrire('${tokA}'::uuid) ok`, 'anon', null,
+  (r) => (r[0].ok === true ? null : 'échec'));
+await expectOk('… adresse exclue, prospect désinscrit, envoi annulé', `
+  select (select count(*)::int from prospection_exclusions where email = 'contact@alpha.fr') e,
+         (select statut from prospects where siren = '111111111') s,
+         (select statut from envois limit 1) v`, null, null,
+  (r) => (r[0].e === 1 && r[0].s === 'desinscrit' && r[0].v === 'annule' ? null : JSON.stringify(r[0])));
+await expectFail('… impossible de replanifier un envoi vers une adresse exclue', `update envois set statut = 'planifie'`, ...A);
+await expectOk('… un nouvel import de la même adresse reste désinscrit', `
+  insert into prospects (nom, email) values ('Alpha (réimport)', 'contact@alpha.fr');
+  select statut from prospects where nom = 'Alpha (réimport)'`, ...A, (r) => (r[0].statut === 'desinscrit' ? null : r[0].statut));
+await expectOk('jeton inconnu : aucune action', `select prospect_desinscrire(gen_random_uuid()) ok`, 'anon', null, (r) => (r[0].ok === false ? null : 'aurait dû renvoyer false'));
+await expectOk('visiteur : demande de dégustation via le lien de campagne', `
+  select nouvelle_demande(jsonb_build_object('entreprise','Beta','email','marie@beta.fr','type','degustation','items','[]'::jsonb,'ref','${tokB}')) is not null ok`,
+  'anon', null, (r) => (r[0].ok ? null : 'échec'));
+await expectOk('… prospect lié et passé en « dégustation »', `
+  select (select statut from prospects where siren = '222222222') s,
+         (select count(*)::int from commandes where prospect_id = (select id from prospects where siren = '222222222')) n`,
+  ...A, (r) => (r[0].s === 'degustation' && r[0].n === 1 ? null : JSON.stringify(r[0])));
+
 console.log(failed ? `\n${failed} vérification(s) en échec` : '\nToutes les vérifications de sécurité passent.');
 process.exit(failed ? 1 : 0);

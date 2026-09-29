@@ -7,6 +7,7 @@ import CommandeForm from './pages/CommandeForm';
 import CommandesPage from './pages/CommandesPage';
 import Dashboard from './pages/Dashboard';
 import PrintPage from './pages/PrintPage';
+import ProspectionPage from './pages/ProspectionPage';
 import RentabilitePage from './pages/RentabilitePage';
 import StockPage from './pages/StockPage';
 import type { Charge, Client, ClientInput, Commande, CommandeInput, Ingredient, RecetteLigne } from './types';
@@ -233,9 +234,10 @@ const TABS = [
   { path: 'calendrier', label: 'Calendrier', short: 'Agenda', icon: '📅' },
   { path: 'stock', label: 'Stock', short: 'Stock', icon: '🥕' },
   { path: 'rentabilite', label: 'Rentabilité', short: 'Bénéfice', icon: '💰' },
+  { path: 'prospection', label: 'Prospection', short: 'Prospects', icon: '🎯' },
 ];
-/** Onglets de la barre mobile (la rentabilité est accessible depuis l’accueil) */
-const MOBILE_TABS = TABS.filter((t) => t.path !== 'rentabilite');
+/** Onglets de la barre mobile (rentabilité et prospection sont accessibles depuis l’accueil) */
+const MOBILE_TABS = TABS.filter((t) => t.path !== 'rentabilite' && t.path !== 'prospection');
 
 function Shell({ email, api, route, children }: { email: string; api: AdminApi; route: string[]; children: ReactNode }) {
   const current = route[0] ?? '';
@@ -261,13 +263,13 @@ function Shell({ email, api, route, children }: { email: string; api: AdminApi; 
               <a
                 key={t.path}
                 href={`#/${t.path}`}
+                aria-label={t.label}
                 aria-current={current === t.path ? 'page' : undefined}
                 className={`whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-semibold transition xl:px-3 ${
                   current === t.path ? 'bg-gold text-ink' : 'text-neutral-200 hover:bg-white/10'
                 }`}
               >
-                {t.icon} <span className="xl:hidden">{t.short}</span>
-                <span className="hidden xl:inline">{t.label}</span>
+                <span title={t.label}>{t.icon}</span> <span className="hidden xl:inline">{t.short}</span>
                 {t.path === 'commandes' && aTraiter > 0 && (
                   <span className="ml-1.5 rounded-full bg-sky-500 px-1.5 text-xs text-white">{aTraiter}</span>
                 )}
@@ -281,7 +283,7 @@ function Shell({ email, api, route, children }: { email: string; api: AdminApi; 
             <a href="#/commandes/nouvelle" className="btn-gold hidden whitespace-nowrap px-4 sm:inline-flex">
               + Commande
             </a>
-            <span className="hidden max-w-[180px] truncate text-xs text-neutral-400 2xl:inline">{email}</span>
+            <span className="hidden max-w-[180px] truncate text-xs text-neutral-400 min-[1700px]:inline">{email}</span>
             <button type="button" onClick={() => void api.signOut()} className="btn-outline px-3 text-xs">
               Déconnexion
             </button>
@@ -332,6 +334,7 @@ function Router({ route }: { route: string[] }) {
   if (section === 'calendrier') return <CalendarPage />;
   if (section === 'stock') return <StockPage />;
   if (section === 'rentabilite') return <RentabilitePage />;
+  if (section === 'prospection') return <ProspectionPage />;
   if (section === 'imprimer' && id && extra) return <PrintPage id={id} doc={extra} />;
   return <Dashboard />;
 }

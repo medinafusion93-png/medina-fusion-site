@@ -95,6 +95,8 @@ export interface OrderPayload {
   adresse: string;
   notes: string;
   parrain?: string;
+  /** Jeton du lien d’un e-mail de prospection (relie la demande au prospect) */
+  ref?: string;
   items: { nom: string; quantite: number; prix_unitaire: number }[];
   total: number;
   type: OrderType;

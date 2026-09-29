@@ -107,6 +107,10 @@ export default function Dashboard() {
         </a>
       )}
 
+      <a href="#/prospection" className="block rounded-2xl border border-white/10 bg-ink-800 p-4 text-sm font-semibold text-neutral-200 transition hover:border-gold">
+        🎯 Prospection : trouver de nouvelles entreprises et proposer une dégustation →
+      </a>
+
       {(retards.length > 0 || relances.length > 0) && (
         <div className="grid gap-4 lg:grid-cols-2">
           {retards.length > 0 && (

@@ -44,6 +44,8 @@ export interface Commande {
   parrain: string;
   numero_devis: string | null;
   numero_facture: string | null;
+  /** Prospect à l’origine de la demande (module prospection), lu seulement */
+  prospect_id?: string | null;
 }
 
 export type ClientInput = Omit<Client, 'id' | 'created_at'> & { id?: string };

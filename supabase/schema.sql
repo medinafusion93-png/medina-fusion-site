@@ -67,6 +67,9 @@ create table if not exists public.commandes (
   numero_facture text
 );
 
+-- Référence de suivi (ex. lien « Demander une dégustation » d’une campagne de prospection)
+alter table public.commandes add column if not exists ref text not null default '';
+
 create index if not exists commandes_date on public.commandes (date_prestation);
 create index if not exists commandes_client on public.commandes (client_id);
 create index if not exists commandes_statut on public.commandes (statut);
@@ -175,7 +178,7 @@ begin
 
   insert into public.commandes (
     client_id, source, type, statut, date_prestation, heure, mode, adresse,
-    lignes, total_ht, allergies, parrain
+    lignes, total_ht, allergies, parrain, ref
   ) values (
     v_client,
     'site',
@@ -188,7 +191,8 @@ begin
     v_lignes,
     greatest(0, least(coalesce((p ->> 'total')::numeric, 0), 1000000)),
     left(coalesce(p ->> 'notes', ''), 2000),
-    left(coalesce(p ->> 'parrain', ''), 200)
+    left(coalesce(p ->> 'parrain', ''), 200),
+    left(coalesce(p ->> 'ref', ''), 64)
   )
   returning id into v_commande;
 

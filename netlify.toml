@@ -13,8 +13,19 @@
   to = "/index.html"
   status = 200
 
+# Page publique de désinscription (lien des e-mails de prospection)
+[[redirects]]
+  from = "/desinscription"
+  to = "/index.html"
+  status = 200
+
 # Ne pas indexer l'espace admin dans les moteurs de recherche
 [[headers]]
   for = "/admin*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/desinscription"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"

@@ -239,7 +239,7 @@ export const FORMULES: Formule[] = [
     prix: 25,
     prixBarre: 30,
     minPersonnes: 10,
-    contenu: [],
+    contenu: ['Chauffe-plat offert dès 30 pers.'],
   },
   {
     id: 'buffet-standard',
@@ -248,7 +248,7 @@ export const FORMULES: Formule[] = [
     prix: 35,
     prixBarre: 42,
     minPersonnes: 10,
-    contenu: ['Jus artisanal offert'],
+    contenu: ['Jus artisanal offert', 'Chauffe-plat offert dès 30 pers.'],
     badge: '★ MEILLEURE AFFAIRE',
     highlight: true,
   },
@@ -259,9 +259,13 @@ export const FORMULES: Formule[] = [
     prix: 45,
     prixBarre: 58,
     minPersonnes: 15,
-    contenu: ['Boissons offertes', 'Pâtisseries offertes'],
+    contenu: ['Boissons offertes', 'Pâtisseries offertes', 'Chauffe-plat offert dès 30 pers.'],
   },
 ];
+
+/** Buffets : chauffe-plat offert à partir de ce nombre de convives (1 par tranche de 20) */
+export const CHAUFFE_PLAT_OFFERT_DES = 30;
+const CHAUFFE_PLAT_OFFERT: Orderable = { id: 'chauffe-plat-offert', nom: 'Chauffe-plat (offert, buffet 30 pers. et +)', prix: 0 };
 
 /** Index id → article commandable (produits + formules), utilisé par le panier */
 export const ORDERABLES = new Map<string, Orderable>(
@@ -278,5 +282,6 @@ export const ORDERABLES = new Map<string, Orderable>(
       ),
     ),
     ...FORMULES.map((f): Orderable => ({ id: f.id, nom: `${f.nom} (par pers.)`, prix: f.prix, min: f.minPersonnes })),
+    CHAUFFE_PLAT_OFFERT,
   ].map((o) => [o.id, o]),
 );

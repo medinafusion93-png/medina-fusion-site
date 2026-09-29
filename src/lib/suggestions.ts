@@ -1,4 +1,4 @@
-import { CATEGORIES } from '../data/products';
+import { CATEGORIES, CHAUFFE_PLAT_OFFERT_DES } from '../data/products';
 import type { CartLine } from '../types';
 
 export interface Suggestion {
@@ -43,13 +43,16 @@ export function suggestions(lines: CartLine[]): Suggestion[] {
       bouton: `+ ${manqueKits} kit${manqueKits > 1 ? 's' : ''} couverts`,
       lignes: [{ id: 'kit-couverts', quantite: manqueKits }],
     });
-  if ((convivesBuffet > 0 || brochettes >= 10) && somme(new Set(['chauffe-plat'])) === 0) {
+  if ((convivesBuffet > 0 || brochettes >= 10) && somme(new Set(['chauffe-plat', 'chauffe-plat-offert'])) === 0) {
     const n = Math.max(1, Math.ceil(convivesBuffet / 20));
+    const offert = convivesBuffet >= CHAUFFE_PLAT_OFFERT_DES;
     out.push({
       id: 'chauffe-plat',
-      texte: 'Pour garder brochettes et plats chauds pendant le service.',
-      bouton: `+ ${n} chauffe-plat${n > 1 ? 's' : ''}`,
-      lignes: [{ id: 'chauffe-plat', quantite: n }],
+      texte: offert
+        ? `Buffet de ${convivesBuffet} personnes : chauffe-plat offert pour garder les plats chauds.`
+        : 'Pour garder brochettes et plats chauds pendant le service.',
+      bouton: `+ ${n} chauffe-plat${n > 1 ? 's' : ''}${offert ? ` offert${n > 1 ? 's' : ''}` : ''}`,
+      lignes: [{ id: offert ? 'chauffe-plat-offert' : 'chauffe-plat', quantite: n }],
     });
   }
 

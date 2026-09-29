@@ -5,7 +5,8 @@ export type CategoryId =
   | 'plateaux'
   | 'brochettes'
   | 'desserts'
-  | 'boissons';
+  | 'boissons'
+  | 'materiel';
 
 export interface Product {
   id: string;

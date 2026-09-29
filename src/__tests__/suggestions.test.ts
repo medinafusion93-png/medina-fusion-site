@@ -7,7 +7,17 @@ import { dateMinISO } from '../lib/validation';
 describe('suggestions panier', () => {
   it('propose boissons et desserts manquants', () => {
     const s = suggestions(toLines({ 'plateau-shawarma:poulet': 6, 'assiette-vegetarienne': 4, citronnade: 3 }, ORDERABLES));
-    expect(s.map((x) => x.lignes)).toEqual([[{ id: 'citronnade', quantite: 7 }], [{ id: 'baklawa', quantite: 10 }]]);
+    expect(s.map((x) => x.lignes)).toEqual([
+      [{ id: 'kit-couverts', quantite: 10 }],
+      [{ id: 'citronnade', quantite: 7 }],
+      [{ id: 'baklawa', quantite: 10 }],
+    ]);
+  });
+  it('propose couverts et chauffe-plats pour un buffet, sans doublon', () => {
+    const s = suggestions(toLines({ 'buffet-standard': 30 }, ORDERABLES));
+    expect(s.map((x) => x.lignes)).toEqual([[{ id: 'kit-couverts', quantite: 30 }], [{ id: 'chauffe-plat', quantite: 2 }]]);
+    expect(suggestions(toLines({ 'buffet-standard': 30, 'kit-couverts': 30, 'chauffe-plat': 1 }, ORDERABLES))).toEqual([]);
+    expect(suggestions(toLines({ 'brochette-kefta': 12 }, ORDERABLES)).map((x) => x.id)).toEqual(['chauffe-plat']);
   });
   it('rien sous 3 repas, ni pour la formule sandwich (tout compris)', () => {
     expect(suggestions(toLines({ 'plateau-shawarma:viande': 2 }, ORDERABLES))).toEqual([]);

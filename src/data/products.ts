@@ -177,6 +177,33 @@ export const CATEGORIES: ProductCategory[] = [
       { id: 'eau-gazeuse', nom: 'Eau gazeuse', prix: 2.5 },
     ],
   },
+  {
+    // Vaisselle jetable en plastique interdite (loi AGEC) : bois, carton, compostable
+    id: 'materiel',
+    titre: 'Matériel & Accessoires',
+    sousTitre: 'Tout pour servir : couverts, vaisselle, chauffe-plats',
+    icon: '🧺',
+    layout: 'list',
+    produits: [
+      {
+        id: 'kit-couverts',
+        nom: 'Kit couverts',
+        prix: 1,
+        unite: 'par pers.',
+        description: 'Fourchette, couteau et cuillère en bois + serviette',
+      },
+      { id: 'assiette-jetable', nom: 'Assiette compostable', prix: 0.5, unite: 'pièce' },
+      { id: 'gobelet-jetable', nom: 'Gobelet carton', prix: 0.3, unite: 'pièce' },
+      {
+        id: 'chauffe-plat',
+        nom: 'Chauffe-plat (location)',
+        prix: 25,
+        unite: 'pièce',
+        description: 'Garde brochettes et plats chauds 2 à 3 h. Combustible inclus, installé à la livraison et récupéré après.',
+      },
+      { id: 'nappe-buffet', nom: 'Nappe papier buffet', prix: 5, unite: 'pièce' },
+    ],
+  },
 ];
 
 export const FORMULES: Formule[] = [

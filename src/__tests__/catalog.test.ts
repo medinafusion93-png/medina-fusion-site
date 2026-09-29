@@ -14,6 +14,7 @@ describe('catalogue', () => {
       brochettes: 2,
       desserts: 7,
       boissons: 4,
+      materiel: 5,
     });
     expect(FORMULES).toHaveLength(5);
     const lignesPanier = produits.reduce((s, p) => s + (p.options ? p.options.choix.length : 1), 0);
@@ -49,6 +50,8 @@ describe('catalogue', () => {
     expect(prix('brochette-kefta')).toBe(3.5);
     expect(prix('baklawa')).toBe(4);
     expect(prix('eau-gazeuse')).toBe(2.5);
+    expect(prix('kit-couverts')).toBe(1);
+    expect(prix('chauffe-plat')).toBe(25);
     expect(FORMULES.map((f) => [f.prix, f.prixBarre, f.minPersonnes])).toEqual([
       [7.9, 11, 6],
       [15, 19, 8],

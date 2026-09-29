@@ -16,8 +16,12 @@ describe('suggestions panier', () => {
   });
   it('propose couverts et chauffe-plats pour un buffet, sans doublon', () => {
     const s = suggestions(toLines({ 'buffet-standard': 20 }, ORDERABLES));
-    expect(s.map((x) => x.lignes)).toEqual([[{ id: 'kit-couverts', quantite: 20 }], [{ id: 'chauffe-plat', quantite: 1 }]]);
-    expect(suggestions(toLines({ 'buffet-standard': 20, 'kit-couverts': 20, 'chauffe-plat': 1 }, ORDERABLES))).toEqual([]);
+    expect(s.map((x) => x.lignes)).toEqual([[{ id: 'kit-buffet-complet', quantite: 20 }], [{ id: 'chauffe-plat', quantite: 1 }]]);
+    expect(suggestions(toLines({ 'buffet-standard': 20, 'kit-buffet-complet': 20, 'chauffe-plat': 1 }, ORDERABLES))).toEqual([]);
+    // Buffet + plateaux : kit complet pour le buffet, couverts pour les plateaux
+    const mix = suggestions(toLines({ 'buffet-classique': 10, 'assiette-vegetarienne': 5, 'kit-buffet-complet': 10, 'chauffe-plat': 1 }, ORDERABLES));
+    expect(mix.find((x) => x.id === 'couverts')?.lignes).toEqual([{ id: 'kit-couverts', quantite: 5 }]);
+    expect(mix.find((x) => x.id === 'kit-buffet')).toBeUndefined();
     expect(suggestions(toLines({ 'brochette-kefta': 12 }, ORDERABLES)).map((x) => x.id)).toEqual(['chauffe-plat']);
   });
   it('chauffe-plat offert automatiquement dès 30 convives, retiré en dessous, jamais saisi par le client', () => {
@@ -28,7 +32,7 @@ describe('suggestions panier', () => {
     // Un id « offert » glissé dans le panier est ignoré
     expect(offert({ 'buffet-standard': 10, 'chauffe-plat-offert': 5 })).toBeUndefined();
     // Offert → plus de suggestion de chauffe-plat payant
-    const s = suggestions(appliquerOffres(toLines({ 'buffet-prestige': 45, 'kit-couverts': 45 }, ORDERABLES)));
+    const s = suggestions(appliquerOffres(toLines({ 'buffet-prestige': 45, 'kit-buffet-complet': 45 }, ORDERABLES)));
     expect(s).toEqual([]);
   });
   it('rien sous 3 repas, ni pour la formule sandwich (tout compris)', () => {

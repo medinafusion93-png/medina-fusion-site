@@ -181,10 +181,19 @@ export const CATEGORIES: ProductCategory[] = [
     // Vaisselle jetable en plastique interdite (loi AGEC) : bois, carton, compostable
     id: 'materiel',
     titre: 'Matériel & Accessoires',
-    sousTitre: 'Tout pour servir : couverts, vaisselle, chauffe-plats',
+    sousTitre: 'Tout est fourni : vous n’avez rien à acheter à côté',
     icon: '🧺',
     layout: 'list',
     produits: [
+      {
+        id: 'kit-buffet-complet',
+        nom: 'Kit Buffet complet',
+        prix: 2,
+        unite: 'par pers.',
+        badge: 'Tout compris',
+        description:
+          'Assiette compostable, couverts en bois, serviette, gobelet, nappes et ustensiles de service. Rien à prévoir de votre côté.',
+      },
       {
         id: 'kit-couverts',
         nom: 'Kit couverts',

@@ -14,7 +14,7 @@ describe('catalogue', () => {
       brochettes: 2,
       desserts: 7,
       boissons: 4,
-      materiel: 5,
+      materiel: 6,
     });
     expect(FORMULES).toHaveLength(5);
     const lignesPanier = produits.reduce((s, p) => s + (p.options ? p.options.choix.length : 1), 0);

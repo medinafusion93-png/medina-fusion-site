@@ -26,7 +26,11 @@ const base = (id: string) => id.split(':')[0]!;
 /** Suggestions d’ajout : boissons et desserts manquants par rapport au nombre de repas */
 export function suggestions(lines: CartLine[]): Suggestion[] {
   const somme = (set: Set<string>) => lines.filter((l) => set.has(base(l.id))).reduce((s, l) => s + l.quantite, 0);
-  const couverts = lines.filter((l) => PLATEAUX.has(base(l.id)) || AVEC_COUVERTS.has(l.id)).reduce((s, l) => s + l.quantite, 0);
+  // Buffets et brunch : kit complet (vaisselle + nappes + service) ; plateaux individuels : kit couverts
+  const convivesService = somme(AVEC_COUVERTS);
+  const nbPlateaux = somme(PLATEAUX);
+  const kitsBuffet = somme(new Set(['kit-buffet-complet']));
+  const kitsCouverts = somme(new Set(['kit-couverts']));
   const convivesBuffet = somme(BUFFETS);
   const brochettes = somme(BROCHETTES);
   const repas = lines
@@ -34,14 +38,22 @@ export function suggestions(lines: CartLine[]): Suggestion[] {
     .reduce((s, l) => s + l.quantite, 0);
   const out: Suggestion[] = [];
 
-  // Matériel : couverts et chauffe-plats (utile aussi pour un buffet seul)
-  const manqueKits = couverts - somme(new Set(['kit-couverts']));
-  if (couverts >= 3 && manqueKits > 0)
+  // Matériel : le client ne doit rien avoir à acheter ailleurs
+  const manqueBuffet = convivesService - kitsBuffet;
+  if (convivesService >= 3 && manqueBuffet > 0)
+    out.push({
+      id: 'kit-buffet',
+      texte: `Kit Buffet complet pour ${convivesService} personnes : vaisselle, couverts, serviettes, gobelets, nappes et ustensiles de service. Rien à acheter à côté.`,
+      bouton: `+ ${manqueBuffet} kit${manqueBuffet > 1 ? 's' : ''} buffet complet`,
+      lignes: [{ id: 'kit-buffet-complet', quantite: manqueBuffet }],
+    });
+  const manqueCouverts = nbPlateaux - kitsCouverts - Math.max(0, kitsBuffet - convivesService);
+  if (nbPlateaux >= 3 && manqueCouverts > 0)
     out.push({
       id: 'couverts',
-      texte: `Couverts et serviettes pour ${couverts} personne${couverts > 1 ? 's' : ''} ?`,
-      bouton: `+ ${manqueKits} kit${manqueKits > 1 ? 's' : ''} couverts`,
-      lignes: [{ id: 'kit-couverts', quantite: manqueKits }],
+      texte: `Couverts et serviettes pour ${nbPlateaux} plateau${nbPlateaux > 1 ? 'x' : ''} ?`,
+      bouton: `+ ${manqueCouverts} kit${manqueCouverts > 1 ? 's' : ''} couverts`,
+      lignes: [{ id: 'kit-couverts', quantite: manqueCouverts }],
     });
   // Dès 30 convives de buffet, le chauffe-plat est offert automatiquement (lib/offres.ts) : rien à proposer
   if ((convivesBuffet > 0 || brochettes >= 10) && somme(new Set(['chauffe-plat', 'chauffe-plat-offert'])) === 0) {

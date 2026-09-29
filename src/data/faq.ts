@@ -15,6 +15,10 @@ export const FAQ: { q: string; r: string }[] = [
     r: `Nous sommes basés à Bagnolet (${CONTACT.adresse}). Indiquez votre adresse dans le formulaire : nous vous confirmons la livraison avec votre commande.`,
   },
   {
+    q: 'Dois-je prévoir de la vaisselle, des nappes ou des chauffe-plats ?',
+    r: 'Non, vous n’avez rien à acheter à côté. Ajoutez le Kit Buffet complet (assiettes, couverts, serviettes, gobelets, nappes et ustensiles de service) et nos chauffe-plats, installés à la livraison et récupérés après. Le chauffe-plat est offert pour les buffets dès 30 personnes.',
+  },
+  {
     q: 'Les prix sont-ils HT ou TTC ?',
     r: 'Les prix affichés sont hors taxes. La TVA à 10 % s’ajoute ; le total TTC est détaillé dans votre panier avant l’envoi.',
   },

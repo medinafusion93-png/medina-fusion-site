@@ -2,7 +2,7 @@ import { useId, useMemo, useState, type FormEvent } from 'react';
 import { ORDERABLES } from '../../data/products';
 import { formatPrice, round2 } from '../../lib/format';
 import { go, useAdmin } from '../AdminApp';
-import { montants, telCle, totalHT } from '../stats';
+import { coutMatiere, montants, telCle, totalHT } from '../stats';
 import { PAIEMENTS, STATUTS, type ClientInput, type CommandeInput, type Ligne } from '../types';
 import { Card, Field, Input, Select, StatutBadge, Textarea } from '../ui';
 
@@ -21,7 +21,7 @@ function vide(clientId: string | null): CommandeInput {
 }
 
 export default function CommandeForm({ id }: { id: string | null }) {
-  const { commandes, clients, clientById, saveCommande, saveClient, deleteCommande } = useAdmin();
+  const { commandes, clients, clientById, saveCommande, saveClient, deleteCommande, ingredients, recettes, ingredientById } = useAdmin();
   const uid = useId();
   const existing = id ? commandes.find((c) => c.id === id) : undefined;
   const presetClient = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('client');
@@ -258,6 +258,28 @@ export default function CommandeForm({ id }: { id: string | null }) {
         >
           + Ajouter une ligne
         </button>
+        {ingredients && form.lignes.length > 0 && (() => {
+          const cm = coutMatiere(form.lignes, recettes, ingredientById);
+          return (
+            <div className="mt-4 rounded-xl bg-ink p-3 text-sm">
+              <p className="text-neutral-300">
+                🥕 Coût matière estimé : <strong className="text-white">{formatPrice(cm.cout)}</strong> · Marge brute :{' '}
+                <strong className={m.ht - cm.cout >= 0 ? 'text-emerald-300' : 'text-red-300'}>
+                  {formatPrice(m.ht - cm.cout)}
+                  {m.ht > 0 && ` (${Math.round(((m.ht - cm.cout) / m.ht) * 100)} %)`}
+                </strong>
+              </p>
+              {cm.sansRecette.length > 0 && (
+                <p className="mt-1 text-xs text-amber-300">
+                  Sans recette (non compté) : {cm.sansRecette.join(', ')} —{' '}
+                  <a href="#/stock" className="underline">
+                    ajouter les recettes
+                  </a>
+                </p>
+              )}
+            </div>
+          );
+        })()}
         <dl className="ml-auto mt-4 max-w-xs space-y-1 text-sm">
           <div className="flex justify-between text-neutral-300">
             <dt>Total HT</dt>
@@ -340,6 +362,9 @@ export default function CommandeForm({ id }: { id: string | null }) {
             </a>
             <a href={`#/imprimer/${existing.id}/cuisine`} className="btn-outline">
               👩‍🍳 Fiche cuisine
+            </a>
+            <a href={`#/imprimer/${existing.id}/livraison`} className="btn-outline">
+              🚚 Bon livreur
             </a>
           </div>
           <p className="mt-2 text-xs text-neutral-400">Enregistrez vos modifications avant d’imprimer.</p>

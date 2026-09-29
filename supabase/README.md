@@ -18,6 +18,13 @@ L’espace admin est sur **`/admin`**. Sans configuration, il s’ouvre en **mod
 
    puis **Deploys → Trigger deploy**.
 
+## Module stock (ingrédients, recettes, mouvements)
+
+Après `schema.sql`, exécuter **[`stock.sql`](./stock.sql)** de la même façon (SQL Editor → Run).
+- Le stock baisse automatiquement quand une commande passe en « Confirmée / En préparation / Livrée »,
+  selon les recettes (quantité par portion), et remonte si elle est annulée ou repasse en devis.
+- Les demandes du site (statut « Demande reçue ») ne touchent pas au stock.
+
 ## Sécurité
 
 - La clé **anon** est publique par conception : toute la protection est **côté serveur** (Row Level Security).

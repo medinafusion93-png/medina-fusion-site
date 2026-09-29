@@ -6,7 +6,7 @@ import { montants } from '../stats';
 import { paiementInfo, STATUTS_VENTE, type Commande } from '../types';
 import { fmtDate } from '../ui';
 
-type Doc = 'devis' | 'facture' | 'cuisine';
+type Doc = 'devis' | 'facture' | 'cuisine' | 'livraison';
 
 const today = () => new Date().toLocaleDateString('fr-FR');
 
@@ -157,6 +157,70 @@ function DocumentCommercial({ c, doc }: { c: Commande; doc: 'devis' | 'facture' 
   );
 }
 
+function BonLivraison({ c }: { c: Commande }) {
+  const { clientById } = useAdmin();
+  const cl = c.client_id ? clientById.get(c.client_id) : undefined;
+  const total = c.lignes.reduce((s, l) => s + l.quantite, 0);
+  const plateaux = c.lignes.filter((l) => /plateau|assiette/i.test(l.nom)).reduce((s, l) => s + l.quantite, 0);
+  const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.adresse)}`;
+  return (
+    <article className="space-y-5">
+      <header className="flex items-start justify-between border-b-4 border-blue-700 pb-4">
+        <div>
+          <p className="text-3xl font-extrabold uppercase text-blue-800">Bon de livraison</p>
+          <p className="mt-1 text-lg">{cl?.entreprise || cl?.nom || 'Client'}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-bold capitalize">{fmtDate(c.date_prestation, true)}</p>
+          <p className="text-3xl font-extrabold">{c.heure || '--:--'}</p>
+        </div>
+      </header>
+      {c.mode === 'retrait' ? (
+        <p className="text-xl font-bold">🏪 Retrait sur place par le client</p>
+      ) : (
+        <section>
+          <p className="text-sm font-bold uppercase text-neutral-500">Adresse</p>
+          <p className="text-2xl font-bold">📍 {c.adresse || '—'}</p>
+          {c.adresse && (
+            <a href={maps} className="text-sm text-blue-700 underline print:hidden" target="_blank" rel="noreferrer">
+              Ouvrir dans Google Maps
+            </a>
+          )}
+        </section>
+      )}
+      <section className="grid grid-cols-2 gap-4 text-lg">
+        <p>
+          <span className="block text-sm font-bold uppercase text-neutral-500">Contact sur place</span>
+          {cl?.nom || '—'}
+        </p>
+        <p>
+          <span className="block text-sm font-bold uppercase text-neutral-500">Téléphone</span>
+          {cl?.telephone ? <a href={`tel:${cl.telephone.replace(/\s/g, '')}`}>{cl.telephone}</a> : '—'}
+        </p>
+      </section>
+      <p className="text-xl">
+        <strong>{total}</strong> article(s){plateaux ? <> dont <strong>{plateaux} plateau(x) repas</strong></> : null}
+      </p>
+      <table className="w-full border-collapse text-xl">
+        <tbody>
+          {c.lignes.map((l, i) => (
+            <tr key={i} className="border-b-2 border-neutral-300">
+              <td className="w-12 py-3 text-3xl text-neutral-400">☐</td>
+              <td className="w-24 py-3 text-center text-3xl font-extrabold">{l.quantite}</td>
+              <td className="py-3">{l.nom}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {c.allergies && <div className="rounded-lg border-4 border-red-600 p-3 text-lg font-bold text-red-700">⚠️ {c.allergies}</div>}
+      <div className="grid grid-cols-2 gap-6 pt-8 text-sm">
+        <p>Livré à : ______ h ______</p>
+        <p>Signature du client :</p>
+      </div>
+    </article>
+  );
+}
+
 function FicheCuisine({ c }: { c: Commande }) {
   const { clientById } = useAdmin();
   const cl = c.client_id ? clientById.get(c.client_id) : undefined;
@@ -208,13 +272,13 @@ function FicheCuisine({ c }: { c: Commande }) {
 export default function PrintPage({ id, doc }: { id: string; doc: string }) {
   const { commandes, api, saveCommande } = useAdmin();
   const c = commandes.find((x) => x.id === id);
-  const kind = (['devis', 'facture', 'cuisine'].includes(doc) ? doc : 'devis') as Doc;
+  const kind = (['devis', 'facture', 'cuisine', 'livraison'].includes(doc) ? doc : 'devis') as Doc;
   const [error, setError] = useState('');
   const numbering = useRef(false);
 
   // Attribue un numéro de devis / facture à la première ouverture
   useEffect(() => {
-    if (!c || kind === 'cuisine' || numbering.current) return;
+    if (!c || kind === 'cuisine' || kind === 'livraison' || numbering.current) return;
     const champ = kind === 'devis' ? 'numero_devis' : 'numero_facture';
     if (c[champ]) return;
     numbering.current = true;
@@ -249,9 +313,9 @@ export default function PrintPage({ id, doc }: { id: string; doc: string }) {
           ← Retour
         </a>
         <div className="flex gap-1">
-          {(['devis', 'facture', 'cuisine'] as const).map((d) => (
+          {(['devis', 'facture', 'cuisine', 'livraison'] as const).map((d) => (
             <a key={d} href={`#/imprimer/${c.id}/${d}`} className={`rounded-full px-3 py-1.5 text-sm font-semibold ${kind === d ? 'bg-gold text-ink' : 'text-neutral-200'}`}>
-              {d === 'devis' ? 'Devis' : d === 'facture' ? 'Facture' : 'Fiche cuisine'}
+              {d === 'devis' ? 'Devis' : d === 'facture' ? 'Facture' : d === 'cuisine' ? 'Fiche cuisine' : 'Bon livreur'}
             </a>
           ))}
         </div>
@@ -265,7 +329,7 @@ export default function PrintPage({ id, doc }: { id: string; doc: string }) {
         {error && <p className="w-full text-xs text-red-300">Numérotation impossible : {error}</p>}
       </div>
       <div className="mx-auto my-6 max-w-[210mm] bg-white p-[14mm] text-neutral-900 shadow-2xl print:my-0 print:max-w-none print:p-0 print:shadow-none">
-        {kind === 'cuisine' ? <FicheCuisine c={c} /> : <DocumentCommercial c={c} doc={kind} />}
+        {kind === 'cuisine' ? <FicheCuisine c={c} /> : kind === 'livraison' ? <BonLivraison c={c} /> : <DocumentCommercial c={c} doc={kind} />}
       </div>
     </div>
   );

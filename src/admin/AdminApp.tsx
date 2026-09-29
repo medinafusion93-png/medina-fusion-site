@@ -7,7 +7,8 @@ import CommandeForm from './pages/CommandeForm';
 import CommandesPage from './pages/CommandesPage';
 import Dashboard from './pages/Dashboard';
 import PrintPage from './pages/PrintPage';
-import type { Client, ClientInput, Commande, CommandeInput } from './types';
+import StockPage from './pages/StockPage';
+import type { Client, ClientInput, Commande, CommandeInput, Ingredient, RecetteLigne } from './types';
 import { Field, Input, Spinner } from './ui';
 
 // ---------------------------------------------------------------------------
@@ -46,6 +47,10 @@ interface AdminData {
   saveCommande: (c: CommandeInput) => Promise<Commande>;
   deleteCommande: (id: string) => Promise<void>;
   deleteClient: (id: string) => Promise<void>;
+  // Stock (null = module non installé dans la base : exécuter supabase/stock.sql)
+  ingredients: Ingredient[] | null;
+  recettes: RecetteLigne[];
+  ingredientById: Map<string, Ingredient>;
 }
 
 const DataContext = createContext<AdminData | null>(null);
@@ -59,6 +64,8 @@ function DataProvider({ api, children }: { api: AdminApi; children: ReactNode })
   const [clients, setClients] = useState<Client[] | null>(null);
   const [commandes, setCommandes] = useState<Commande[] | null>(null);
   const [error, setError] = useState('');
+  const [ingredients, setIngredients] = useState<Ingredient[] | null>(null);
+  const [recettes, setRecettes] = useState<RecetteLigne[]>([]);
 
   const reload = useCallback(async () => {
     try {
@@ -66,6 +73,14 @@ function DataProvider({ api, children }: { api: AdminApi; children: ReactNode })
       setClients(cl);
       setCommandes(co);
       setError('');
+      // Module stock : facultatif, ne bloque pas l’admin s’il n’est pas encore installé
+      try {
+        const [ing, rec] = await Promise.all([api.listIngredients(), api.listRecettes()]);
+        setIngredients(ing);
+        setRecettes(rec);
+      } catch {
+        setIngredients(null);
+      }
     } catch (e) {
       setError((e as Error).message);
     }
@@ -101,8 +116,11 @@ function DataProvider({ api, children }: { api: AdminApi; children: ReactNode })
         await api.deleteClient(id);
         await reload();
       },
+      ingredients,
+      recettes,
+      ingredientById: new Map((ingredients ?? []).map((i) => [i.id, i])),
     };
-  }, [api, clients, commandes, reload]);
+  }, [api, clients, commandes, reload, ingredients, recettes]);
 
   if (error)
     return (
@@ -203,12 +221,15 @@ const TABS = [
   { path: 'commandes', label: 'Commandes', short: 'Commandes', icon: '🧾' },
   { path: 'clients', label: 'Clients', short: 'Clients', icon: '👥' },
   { path: 'calendrier', label: 'Calendrier', short: 'Agenda', icon: '📅' },
+  { path: 'stock', label: 'Stock', short: 'Stock', icon: '🥕' },
 ];
 
 function Shell({ email, api, route, children }: { email: string; api: AdminApi; route: string[]; children: ReactNode }) {
   const current = route[0] ?? '';
   const { commandes } = useAdmin();
   const aTraiter = commandes.filter((c) => c.statut === 'demande').length;
+  const { ingredients } = useAdmin();
+  const nbCourses = (ingredients ?? []).filter((i) => i.stock <= i.seuil).length;
 
   return (
     <div className="min-h-screen pb-24 md:pb-10">
@@ -237,6 +258,9 @@ function Shell({ email, api, route, children }: { email: string; api: AdminApi; 
                 {t.path === 'commandes' && aTraiter > 0 && (
                   <span className="ml-1.5 rounded-full bg-sky-500 px-1.5 text-xs text-white">{aTraiter}</span>
                 )}
+                {t.path === 'stock' && nbCourses > 0 && (
+                  <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 text-xs text-ink">{nbCourses}</span>
+                )}
               </a>
             ))}
           </nav>
@@ -255,7 +279,7 @@ function Shell({ email, api, route, children }: { email: string; api: AdminApi; 
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
 
       {/* Barre d’onglets mobile */}
-      <nav aria-label="Sections" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-white/10 bg-ink/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      <nav aria-label="Sections" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-white/10 bg-ink/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         {TABS.slice(0, 2).map((t) => (
           <TabLink key={t.path} t={t} active={current === t.path} badge={t.path === 'commandes' ? aTraiter : 0} />
         ))}
@@ -263,7 +287,7 @@ function Shell({ email, api, route, children }: { email: string; api: AdminApi; 
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold text-2xl font-bold text-ink">+</span>
         </a>
         {TABS.slice(2).map((t) => (
-          <TabLink key={t.path} t={t} active={current === t.path} badge={0} />
+          <TabLink key={t.path} t={t} active={current === t.path} badge={t.path === 'stock' ? nbCourses : 0} />
         ))}
       </nav>
     </div>
@@ -293,6 +317,7 @@ function Router({ route }: { route: string[] }) {
   if (section === 'clients' && id) return <ClientDetail key={id} id={id === 'nouveau' ? null : id} />;
   if (section === 'clients') return <ClientsPage />;
   if (section === 'calendrier') return <CalendarPage />;
+  if (section === 'stock') return <StockPage />;
   if (section === 'imprimer' && id && extra) return <PrintPage id={id} doc={extra} />;
   return <Dashboard />;
 }

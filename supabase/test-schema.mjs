@@ -14,8 +14,8 @@ async function run(sql, role, sub) {
   if (sub) await db.query(`select set_config('request.jwt.claim.sub', $1, false)`, [sub]);
   if (role) await db.exec(`set role ${role}`);
   try {
-    const r = await db.query(sql);
-    return r.rows;
+    const res = await db.exec(sql);
+    return [...res].reverse().find((x) => x.rows?.length)?.rows ?? [];
   } finally {
     await db.exec('reset role');
   }
@@ -90,6 +90,44 @@ await expectOk('admin : numérotation continue par type',
 await expectOk('admin : modifie une commande (updated_at mis à jour)',
   `update commandes set statut = 'confirmee' where type = 'commande' returning updated_at >= created_at ok`, 'authenticated', ADMIN,
   (r) => (r.length === 1 && r[0].ok ? null : 'échec'));
+
+
+// ---------------- Module stock ----------------
+const stock = fs.readFileSync(new URL('./stock.sql', import.meta.url), 'utf8');
+await db.exec(stock);
+await db.exec(stock); // idempotent
+console.log('✔ stock.sql appliqué deux fois sans erreur');
+
+const A = ['authenticated', ADMIN];
+await expectOk('admin : crée ingrédients + recette', `
+  insert into ingredients (nom, unite, stock, seuil, prix_unitaire) values ('Poulet', 'kg', 10, 2, 8), ('Houmous', 'kg', 5, 1, 4);
+  insert into recettes (produit, ingredient_id, quantite)
+    select 'Plateau Shawarma — Poulet', id, case nom when 'Poulet' then 0.15 else 0.1 end from ingredients;
+  select 1`, ...A);
+await expectOk('commande confirmée → sortie de stock',
+  `insert into commandes (statut, lignes, total_ht) values ('confirmee', '[{"nom":"Plateau Shawarma — Poulet","quantite":10,"prix_unitaire":15.9}]', 159);
+   select (select stock::float from ingredients where nom='Poulet') p, (select stock::float from ingredients where nom='Houmous') h`,
+  ...A, (r) => (r[0].p === 8.5 && r[0].h === 4 ? null : JSON.stringify(r[0])));
+await expectOk('commande annulée → retour en stock',
+  `update commandes set statut = 'annulee' where statut = 'confirmee';
+   select (select stock::float from ingredients where nom='Poulet') p`, ...A, (r) => (r[0].p === 10 ? null : JSON.stringify(r[0])));
+await expectOk('demande du site (non confirmée) → pas de sortie',
+  `select nouvelle_demande('{"entreprise":"X","tel":"0611111111","items":[{"nom":"Plateau Shawarma — Poulet","quantite":5,"prix_unitaire":15.9}],"total":79.5}'::jsonb);
+   select (select stock::float from ingredients where nom='Poulet') p`, null, null, (r) => (r[0].p === 10 ? null : JSON.stringify(r[0])));
+await expectOk('validation de la demande → sortie',
+  `update commandes set statut = 'confirmee' where source = 'site' and lignes @> '[{"quantite":5}]';
+   select (select stock::float from ingredients where nom='Poulet') p`, ...A, (r) => (r[0].p === 9.25 ? null : JSON.stringify(r[0])));
+await expectOk('modification des quantités d’une commande confirmée → stock ajusté',
+  `update commandes set lignes = '[{"nom":"Plateau Shawarma — Poulet","quantite":2,"prix_unitaire":15.9}]' where source = 'site' and statut = 'confirmee';
+   select (select stock::float from ingredients where nom='Poulet') p`, ...A, (r) => (r[0].p === 9.7 ? null : JSON.stringify(r[0])));
+await expectOk('entrée de marchandise',
+  `insert into mouvements (ingredient_id, type, quantite, note) select id, 'entree', 5, 'Achat' from ingredients where nom='Poulet';
+   select (select stock::float from ingredients where nom='Poulet') p`, ...A, (r) => (r[0].p === 14.7 ? null : JSON.stringify(r[0])));
+await expectFail('visiteur : lecture ingrédients', 'select * from ingredients', 'anon');
+await expectOk('connecté non admin : ne voit aucun ingrédient', 'select count(*)::int n from ingredients', 'authenticated', PIRATE, (r) => (r[0].n === 0 ? null : `voit ${r[0].n}`));
+await expectOk('connecté non admin : ajout de stock sans effet',
+  `insert into mouvements (ingredient_id, type, quantite) select id, 'entree', 100 from ingredients; select 1`, 'authenticated', PIRATE);
+await expectOk('… stock inchangé', `select stock::float p from ingredients where nom='Poulet'`, null, null, (r) => (r[0].p === 14.7 ? null : JSON.stringify(r[0])));
 
 console.log(failed ? `\n${failed} vérification(s) en échec` : '\nToutes les vérifications de sécurité passent.');
 process.exit(failed ? 1 : 0);

@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE } from '../data/config';
-import type { Client, ClientInput, Commande, CommandeInput } from './types';
+import type { Client, ClientInput, Commande, CommandeInput, Ingredient, IngredientInput, Mouvement, RecetteLigne } from './types';
 
 /** Accès aux données de l’espace admin (Supabase en production, mémoire en mode démo) */
 export interface AdminApi {
@@ -20,11 +20,26 @@ export interface AdminApi {
   saveCommande(c: CommandeInput): Promise<Commande>;
   deleteCommande(id: string): Promise<void>;
   prochainNumero(type: 'devis' | 'facture'): Promise<string>;
+
+  // Stock
+  listIngredients(): Promise<Ingredient[]>;
+  saveIngredient(i: IngredientInput): Promise<Ingredient>;
+  deleteIngredient(id: string): Promise<void>;
+  listRecettes(): Promise<RecetteLigne[]>;
+  /** Remplace toute la recette d’un produit */
+  saveRecette(produit: string, lignes: { ingredient_id: string; quantite: number }[]): Promise<void>;
+  listMouvements(limit?: number): Promise<Mouvement[]>;
+  addMouvement(m: { ingredient_id: string; type: Mouvement['type']; quantite: number; note: string }): Promise<void>;
 }
 
 const num = (v: unknown) => (v === null || v === undefined || v === '' ? 0 : Number(v));
 
 /** Postgres renvoie les numeric en texte : on normalise */
+const fixIngredient = (r: Record<string, unknown>): Ingredient => {
+  const i = r as unknown as Ingredient;
+  return { ...i, stock: num(i.stock), seuil: num(i.seuil), prix_unitaire: num(i.prix_unitaire) };
+};
+
 function fixCommande(r: Record<string, unknown>): Commande {
   const c = r as unknown as Commande;
   return {
@@ -101,6 +116,32 @@ function supabaseApi(sb: SupabaseClient): AdminApi {
     async prochainNumero(type) {
       return unwrap(await sb.rpc('prochain_numero', { p_type: type })) as string;
     },
+    async listIngredients() {
+      const rows = unwrap(await sb.from('ingredients').select('*').order('nom'));
+      return (rows as Record<string, unknown>[]).map(fixIngredient);
+    },
+    async saveIngredient({ id, ...i }) {
+      const q = id ? sb.from('ingredients').update(i).eq('id', id) : sb.from('ingredients').insert(i);
+      return fixIngredient(unwrap(await q.select().single()));
+    },
+    async deleteIngredient(id) {
+      unwrap(await sb.from('ingredients').delete().eq('id', id));
+    },
+    async listRecettes() {
+      const rows = unwrap(await sb.from('recettes').select('*'));
+      return (rows as RecetteLigne[]).map((r) => ({ ...r, quantite: num(r.quantite) }));
+    },
+    async saveRecette(produit, lignes) {
+      unwrap(await sb.from('recettes').delete().eq('produit', produit));
+      if (lignes.length) unwrap(await sb.from('recettes').insert(lignes.map((l) => ({ ...l, produit }))));
+    },
+    async listMouvements(limit = 200) {
+      const rows = unwrap(await sb.from('mouvements').select('*').order('created_at', { ascending: false }).limit(limit));
+      return (rows as Mouvement[]).map((m) => ({ ...m, quantite: num(m.quantite) }));
+    },
+    async addMouvement(m) {
+      unwrap(await sb.from('mouvements').insert(m));
+    },
   };
 }
 
@@ -135,6 +176,39 @@ function demoApi(): AdminApi {
     cmd({ client_id: 'c3', source: 'site', type: 'degustation', statut: 'demande', date_prestation: null, heure: '' }),
   ];
   const compteurs = { devis: 4, facture: 1 };
+  const ing = (nom: string, unite: string, stock: number, seuil: number, prix: number): Ingredient => ({
+    id: uid(), created_at: d(-30), nom, unite, stock, seuil, prix_unitaire: prix, fournisseur: '',
+  });
+  const ingredients: Ingredient[] = [
+    ing('Poulet mariné', 'kg', 6, 3, 8.5), ing('Viande shawarma', 'kg', 2, 3, 12), ing('Houmous', 'kg', 4, 2, 5),
+    ing('Taboulé', 'kg', 3, 1.5, 4), ing('Pain libanais', 'pièce', 40, 30, 0.25), ing('Citrons', 'kg', 1, 2, 3),
+  ];
+  const idOf = (nom: string) => ingredients.find((i) => i.nom === nom)!.id;
+  const recettes: RecetteLigne[] = [
+    { produit: 'Plateau Shawarma — Poulet', ingredient_id: idOf('Poulet mariné'), quantite: 0.15 },
+    { produit: 'Plateau Shawarma — Poulet', ingredient_id: idOf('Houmous'), quantite: 0.08 },
+    { produit: 'Plateau Shawarma — Viande', ingredient_id: idOf('Viande shawarma'), quantite: 0.15 },
+    { produit: 'Plateau Shawarma — Viande', ingredient_id: idOf('Houmous'), quantite: 0.08 },
+    { produit: 'Citronnade maison', ingredient_id: idOf('Citrons'), quantite: 0.05 },
+  ];
+  const mouvements: Mouvement[] = [];
+  const VENTE = ['confirmee', 'en_preparation', 'livree'];
+  const bouger = (commandeId: string, lignes: { nom: string; quantite: number }[], signe: 1 | -1, note: string) => {
+    for (const l of lignes)
+      for (const r of recettes.filter((x) => x.produit === l.nom)) {
+        const q = signe * r.quantite * l.quantite;
+        const i = ingredients.find((x) => x.id === r.ingredient_id);
+        if (i) i.stock = Math.round((i.stock + q) * 1000) / 1000;
+        mouvements.unshift({ id: uid(), created_at: new Date().toISOString(), ingredient_id: r.ingredient_id, type: signe < 0 ? 'sortie' : 'entree', quantite: q, commande_id: commandeId, note });
+      }
+  };
+  const suivreStock = (avant: Commande | undefined, apres: Commande) => {
+    const ov = !!avant && VENTE.includes(avant.statut);
+    const nv = VENTE.includes(apres.statut);
+    const changees = !!avant && JSON.stringify(avant.lignes) !== JSON.stringify(apres.lignes);
+    if (ov && (!nv || changees)) bouger(apres.id, avant!.lignes, 1, 'Retour stock (commande modifiée ou annulée)');
+    if (nv && (!ov || changees)) bouger(apres.id, apres.lignes, -1, 'Commande confirmée');
+  };
   let email: string | null = null;
   const listeners = new Set<(e: string | null) => void>();
   const emit = () => listeners.forEach((l) => l(email));
@@ -191,11 +265,14 @@ function demoApi(): AdminApi {
       await wait();
       if (id) {
         const i = commandes.findIndex((x) => x.id === id);
-        commandes[i] = { ...commandes[i]!, ...c, updated_at: new Date().toISOString() };
+        const avant = commandes[i]!;
+        commandes[i] = { ...avant, ...c, updated_at: new Date().toISOString() };
+        suivreStock(avant, commandes[i]!);
         return commandes[i]!;
       }
       const nc: Commande = { ...c, id: uid(), created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
       commandes.unshift(nc);
+      suivreStock(undefined, nc);
       return nc;
     },
     async deleteCommande(id) {
@@ -204,6 +281,41 @@ function demoApi(): AdminApi {
     async prochainNumero(type) {
       compteurs[type] += 1;
       return `${type === 'devis' ? 'D' : 'F'}-${now.getFullYear()}-${String(compteurs[type]).padStart(4, '0')}`;
+    },
+    async listIngredients() {
+      await wait();
+      return ingredients.map((i) => ({ ...i })).sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+    },
+    async saveIngredient({ id, ...i }) {
+      if (ingredients.some((x) => x.id !== id && x.nom.toLowerCase() === i.nom.toLowerCase()))
+        throw new Error('Un ingrédient porte déjà ce nom.');
+      if (id) {
+        const k = ingredients.findIndex((x) => x.id === id);
+        ingredients[k] = { ...ingredients[k]!, ...i };
+        return ingredients[k]!;
+      }
+      const n: Ingredient = { ...i, id: uid(), created_at: new Date().toISOString(), stock: 0 };
+      ingredients.push(n);
+      return n;
+    },
+    async deleteIngredient(id) {
+      ingredients.splice(ingredients.findIndex((x) => x.id === id), 1);
+      for (let k = recettes.length - 1; k >= 0; k--) if (recettes[k]!.ingredient_id === id) recettes.splice(k, 1);
+    },
+    async listRecettes() {
+      return recettes.map((r) => ({ ...r }));
+    },
+    async saveRecette(produit, lignes) {
+      for (let k = recettes.length - 1; k >= 0; k--) if (recettes[k]!.produit === produit) recettes.splice(k, 1);
+      recettes.push(...lignes.map((l) => ({ ...l, produit })));
+    },
+    async listMouvements(limit = 200) {
+      return mouvements.slice(0, limit);
+    },
+    async addMouvement(m) {
+      const i = ingredients.find((x) => x.id === m.ingredient_id);
+      if (i) i.stock = Math.round((i.stock + m.quantite) * 1000) / 1000;
+      mouvements.unshift({ ...m, id: uid(), created_at: new Date().toISOString(), commande_id: null });
     },
   };
 }

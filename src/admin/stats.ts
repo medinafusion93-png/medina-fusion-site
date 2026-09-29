@@ -1,5 +1,5 @@
 import { round2 } from '../lib/format';
-import { STATUTS_VENTE, type Commande, type Ligne } from './types';
+import { STATUTS_VENTE, type Commande, type Ingredient, type Ligne, type RecetteLigne } from './types';
 
 export const totalHT = (lignes: Ligne[]) =>
   round2(lignes.reduce((s, l) => s + Number(l.quantite || 0) * Number(l.prix_unitaire || 0), 0));
@@ -105,3 +105,29 @@ export function matches(q: string, ...fields: (string | null | undefined)[]) {
 }
 
 export const telCle = (t: string) => t.replace(/\D/g, '').slice(-9);
+
+// ---------------- Stock ----------------
+
+export const aRacheter = (i: Ingredient) => i.stock <= i.seuil;
+
+/** Coût matière d’une liste de lignes selon les recettes et prix d’achat des ingrédients */
+export function coutMatiere(
+  lignes: { nom: string; quantite: number }[],
+  recettes: RecetteLigne[],
+  ingredients: Map<string, Ingredient>,
+): { cout: number; sansRecette: string[] } {
+  let cout = 0;
+  const sansRecette: string[] = [];
+  for (const l of lignes) {
+    const rs = recettes.filter((r) => r.produit === l.nom);
+    if (rs.length === 0) {
+      sansRecette.push(l.nom);
+      continue;
+    }
+    for (const r of rs) cout += r.quantite * l.quantite * (ingredients.get(r.ingredient_id)?.prix_unitaire ?? 0);
+  }
+  return { cout: round2(cout), sansRecette };
+}
+
+/** Quantité à racheter pour revenir à 2 × le seuil */
+export const quantiteAchat = (i: Ingredient) => Math.max(0, Math.round((i.seuil * 2 - i.stock) * 1000) / 1000);

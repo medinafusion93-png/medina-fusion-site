@@ -1,6 +1,6 @@
 import { formatPrice } from '../../lib/format';
 import { useAdmin } from '../AdminApp';
-import { dashboardStats, montants } from '../stats';
+import { aRacheter, dashboardStats, montants } from '../stats';
 import { Card, Empty, fmtDate, PaiementBadge, StatutBadge } from '../ui';
 
 function Tile({ label, value, sub, href, accent }: { label: string; value: string; sub?: string; href?: string; accent?: boolean }) {
@@ -22,7 +22,8 @@ function Tile({ label, value, sub, href, accent }: { label: string; value: strin
 }
 
 export default function Dashboard() {
-  const { commandes, clientById } = useAdmin();
+  const { commandes, clientById, ingredients } = useAdmin();
+  const courses = (ingredients ?? []).filter(aRacheter);
   const s = dashboardStats(commandes);
   const nb = (n: number) => `${n} commande${n > 1 ? 's' : ''}`;
 
@@ -38,6 +39,20 @@ export default function Dashboard() {
           <span>
             📥 <strong>{s.demandesATraiter}</strong> nouvelle{s.demandesATraiter > 1 ? 's' : ''} demande
             {s.demandesATraiter > 1 ? 's' : ''} du site à traiter
+          </span>
+          <span aria-hidden="true">→</span>
+        </a>
+      )}
+
+      {courses.length > 0 && (
+        <a
+          href="#/stock"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-amber-400/50 bg-amber-500/10 p-4 text-amber-100 hover:bg-amber-500/20"
+        >
+          <span>
+            🛒 <strong>{courses.length}</strong> ingrédient{courses.length > 1 ? 's' : ''} à racheter :{' '}
+            {courses.slice(0, 4).map((i) => i.nom).join(', ')}
+            {courses.length > 4 ? '…' : ''}
           </span>
           <span aria-hidden="true">→</span>
         </a>

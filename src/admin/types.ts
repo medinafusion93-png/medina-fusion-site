@@ -69,3 +69,36 @@ export const paiementInfo = (p: PaiementStatut) => PAIEMENTS.find((x) => x.id ==
 
 /** Statuts comptés dans les ventes (ni devis non accepté, ni annulée) */
 export const STATUTS_VENTE: Statut[] = ['confirmee', 'en_preparation', 'livree'];
+
+// ---------------- Stock ----------------
+export interface Ingredient {
+  id: string;
+  created_at: string;
+  nom: string;
+  unite: string;
+  stock: number;
+  seuil: number;
+  prix_unitaire: number;
+  fournisseur: string;
+}
+export type IngredientInput = Omit<Ingredient, 'id' | 'created_at' | 'stock'> & { id?: string };
+
+/** Quantité d’un ingrédient pour UNE portion d’un produit (libellé exact de ligne de commande) */
+export interface RecetteLigne {
+  id?: string;
+  produit: string;
+  ingredient_id: string;
+  quantite: number;
+}
+
+export interface Mouvement {
+  id: string;
+  created_at: string;
+  ingredient_id: string;
+  type: 'entree' | 'sortie' | 'ajustement';
+  quantite: number;
+  commande_id: string | null;
+  note: string;
+}
+
+export const UNITES = ['kg', 'g', 'L', 'cl', 'pièce', 'botte', 'boîte'];

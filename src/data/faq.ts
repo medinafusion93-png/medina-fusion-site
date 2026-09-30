@@ -1,3 +1,4 @@
+import { ORIGINE_VIANDES } from './allergenes';
 import { CONTACT } from './config';
 
 /** Questions fréquentes — textes à ajuster librement */
@@ -28,7 +29,11 @@ export const FAQ: { q: string; r: string }[] = [
   },
   {
     q: 'Comment signaler une allergie ?',
-    r: 'Précisez-la dans le champ « Remarques » du formulaire : elle apparaît en évidence sur la fiche de notre cuisine. En cas de doute sur un plat, contactez-nous avant de commander.',
+    r: 'Les allergènes (parmi les 14 allergènes majeurs) sont indiqués sous chaque plat. Précisez votre allergie dans le champ « Remarques » du formulaire : elle apparaît en évidence sur la fiche de notre cuisine. En cas de doute sur un plat, contactez-nous avant de commander.',
+  },
+  {
+    q: 'Quelle est l’origine de vos viandes ?',
+    r: `${ORIGINE_VIANDES.map((v) => `${v.viande} : ${v.origine}`).join(' · ')}.`,
   },
   {
     q: 'Puis-je goûter avant de commander ?',

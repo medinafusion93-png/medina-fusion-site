@@ -1,3 +1,4 @@
+import { texteAllergenes } from '../data/allergenes';
 import { variantId } from '../data/products';
 import { useCart } from '../hooks/useCart';
 import { formatPrice } from '../lib/format';
@@ -11,6 +12,7 @@ export default function PhotoDishCard({ product }: { product: Product }) {
   const ids = product.options ? product.options.choix.map((c) => variantId(product.id, c.id)) : [product.id];
   const totalQty = ids.reduce((s, id) => s + (quantities[id] ?? 0), 0);
   const active = totalQty > 0;
+  const allergenes = texteAllergenes(product.id);
 
   return (
     <li
@@ -36,6 +38,7 @@ export default function PhotoDishCard({ product }: { product: Product }) {
         {product.description && (
           <p className="mt-1.5 flex-1 text-sm leading-relaxed text-neutral-300">{product.description}</p>
         )}
+        {allergenes && <p className="mt-1 text-xs text-neutral-400">⚠️ {allergenes}</p>}
 
         {product.options ? (
           <>

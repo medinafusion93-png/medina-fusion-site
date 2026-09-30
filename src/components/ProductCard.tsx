@@ -1,3 +1,4 @@
+import { texteAllergenes } from '../data/allergenes';
 import { useCart } from '../hooks/useCart';
 import { formatPrice } from '../lib/format';
 import type { Product } from '../types';
@@ -8,6 +9,7 @@ import SafeImage from './SafeImage';
 export default function ProductCard({ product }: { product: Product }) {
   const { quantities } = useCart();
   const active = (quantities[product.id] ?? 0) > 0;
+  const allergenes = texteAllergenes(product.id);
 
   return (
     <li
@@ -28,6 +30,7 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </div>
         {product.description && <p className="mt-0.5 text-sm text-neutral-300">{product.description}</p>}
+        {allergenes && <p className="mt-1 text-xs text-neutral-400">⚠️ {allergenes}</p>}
         <p className="mt-1 text-sm">
           <span className="font-bold text-gold">{formatPrice(product.prix)}</span>
           <span className="text-xs text-neutral-400"> HT</span>

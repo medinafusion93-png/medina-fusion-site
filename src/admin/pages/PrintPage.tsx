@@ -20,7 +20,9 @@ function EnTete({ titre, numero, echeance }: { titre: string; numero?: string | 
           <br />
           {CONTACT.adresse}
           <br />
-          SIRET : {CONTACT.siret}
+          {CONTACT.formeJuridique} au capital de {CONTACT.capital}
+          <br />
+          {CONTACT.rcs}
           <br />
           N° TVA : {CONTACT.tvaIntra}
           <br />
@@ -160,7 +162,7 @@ function DocumentCommercial({ c, doc }: { c: Commande; doc: 'devis' | 'facture' 
         </section>
       )}
       <footer className="border-t border-neutral-200 pt-3 text-center text-[11px] text-neutral-500">
-        Merci pour votre confiance · MEDINA FUSION — {CONTACT.adresse} — SIRET {CONTACT.siret} — TVA {CONTACT.tvaIntra}
+        Merci pour votre confiance · MEDINA FUSION — {CONTACT.adresse} — {CONTACT.formeJuridique} au capital de {CONTACT.capital} — {CONTACT.rcs} — TVA {CONTACT.tvaIntra}
       </footer>
     </article>
   );

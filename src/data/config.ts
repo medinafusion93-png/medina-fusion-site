@@ -8,7 +8,12 @@ export const CONTACT = {
   whatsappAffiche: '06 62 28 68 43',
   whatsappIntl: '33662286843',
   adresse: '288 rue Étienne Marcel, 93170 Bagnolet',
-  siret: '948 772 264 0001',
+  /** Identité légale (extrait Kbis) */
+  formeJuridique: 'SAS à associé unique',
+  capital: '1 000 €',
+  siren: '948 772 264',
+  rcs: 'RCS Bobigny 948 772 264',
+  presidente: 'Marwa Saidi (Ben Hamed)',
   tvaIntra: 'FR20948772264',
   instagram: 'medina_fusion',
   instagramUrl: 'https://www.instagram.com/medina_fusion/',
@@ -49,4 +54,11 @@ export const SUPABASE = {
   url: (env.VITE_SUPABASE_URL || 'https://cnyjdpzazuekzwjwhzkc.supabase.co').replace(/[^\x21-\x7e]/g, '').replace(/\/$/, ''),
   // Retire espaces et caractères invisibles/non ASCII glissés au copier-coller
   anonKey: (env.VITE_SUPABASE_ANON_KEY ?? '').replace(/[^\x21-\x7e]/g, ''),
+} as const;
+
+/** Hébergeur du site (mentions légales) — à modifier en cas de changement d’hébergement */
+export const HEBERGEUR = {
+  nom: 'Netlify, Inc.',
+  adresse: '101 2nd Street, San Francisco, CA 94105, États-Unis',
+  site: 'https://www.netlify.com',
 } as const;

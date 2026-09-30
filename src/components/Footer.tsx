@@ -23,7 +23,9 @@ export default function Footer() {
         </address>
         <div>
           <p>🚚 Livraison à partir de {CONTACT.minPersonnesLivraison} personnes</p>
-          <p className="mt-1">SIRET : {CONTACT.siret}</p>
+          <p className="mt-1">
+            {CONTACT.formeJuridique} · {CONTACT.rcs}
+          </p>
           <p className="mt-1">
             <a href={CONTACT.googleAvisUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
               ★ {CONTACT.googleNote}/5 · {CONTACT.googleAvis} avis Google
@@ -36,8 +38,19 @@ export default function Footer() {
           </p>
         </div>
       </div>
-      <p className="border-t border-white/5 py-4 text-center text-xs text-neutral-400">
-        © {new Date().getFullYear()} {CONTACT.nom} — Tous droits réservés
+      <p className="border-t border-white/5 px-4 pb-24 pt-4 text-center text-xs text-neutral-400 sm:pb-4">
+        © {new Date().getFullYear()} {CONTACT.nom} — Tous droits réservés ·{' '}
+        <a href="/mentions-legales" className="underline hover:text-gold">
+          Mentions légales
+        </a>{' '}
+        ·{' '}
+        <a href="/mentions-legales#cgv" className="underline hover:text-gold">
+          CGV
+        </a>{' '}
+        ·{' '}
+        <a href="/mentions-legales#confidentialite" className="underline hover:text-gold">
+          Confidentialité
+        </a>
       </p>
     </footer>
   );

@@ -10,7 +10,8 @@ const SOCIETE = {
   activite: 'Traiteur libano-tunisien',
   adresse: '288 rue Étienne Marcel',
   ville: '93170 Bagnolet',
-  siret: '948 772 264 0001',
+  forme: 'SAS à associé unique au capital de 1 000 €',
+  rcs: 'RCS Bobigny 948 772 264',
   tvaIntra: 'FR20948772264', // numéro de TVA intracommunautaire
   email: 'Medina.fusion93@gmail.com',
   tel: '06 62 28 68 43',
@@ -81,7 +82,7 @@ const facture_html =
 '<td style="vertical-align:top">' +
 '<div style="font-family:Georgia,serif;font-size:28px;font-weight:bold;color:' + OR + ';letter-spacing:1px">' + SOCIETE.nom + '</div>' +
 '<div style="font-size:12px;color:#555;line-height:1.6;margin-top:4px">' + SOCIETE.activite + '<br>' +
-SOCIETE.adresse + ', ' + SOCIETE.ville + '<br>SIRET : ' + SOCIETE.siret +
+SOCIETE.adresse + ', ' + SOCIETE.ville + '<br>' + SOCIETE.forme + '<br>' + SOCIETE.rcs +
 (SOCIETE.tvaIntra ? '<br>N° TVA : ' + SOCIETE.tvaIntra : '') + '<br>' + SOCIETE.email + ' · ' + SOCIETE.tel + '</div></td>' +
 '<td style="vertical-align:top;text-align:right">' +
 '<div style="font-size:30px;font-weight:bold;color:#1c1c1c;letter-spacing:3px">FACTURE</div>' +
@@ -142,7 +143,7 @@ ligneTotal('TVA ' + Math.round(TVA * 100) + ' %', eur(montantTVA)) +
 
 // 6. Pied de page
 '<tr><td style="padding-top:22px;border-top:1px solid #e8e2d8;text-align:center;font-size:11px;color:#888;line-height:1.6">' +
-'Merci pour votre confiance !<br>' + SOCIETE.nom + ' — ' + SOCIETE.adresse + ', ' + SOCIETE.ville + ' — SIRET ' + SOCIETE.siret + (SOCIETE.tvaIntra ? ' — TVA ' + SOCIETE.tvaIntra : '') +
+'Merci pour votre confiance !<br>' + SOCIETE.nom + ' — ' + SOCIETE.adresse + ', ' + SOCIETE.ville + ' — ' + SOCIETE.forme + ' — ' + SOCIETE.rcs + (SOCIETE.tvaIntra ? ' — TVA ' + SOCIETE.tvaIntra : '') +
 '</td></tr>' +
 
 '</table></td></tr></table></body></html>';

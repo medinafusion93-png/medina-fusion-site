@@ -19,6 +19,12 @@
   to = "/index.html"
   status = 200
 
+# Mentions légales, CGV, confidentialité
+[[redirects]]
+  from = "/mentions-legales"
+  to = "/index.html"
+  status = 200
+
 # Ne pas indexer l'espace admin dans les moteurs de recherche
 [[headers]]
   for = "/admin*"

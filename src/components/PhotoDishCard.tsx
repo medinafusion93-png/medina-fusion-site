@@ -21,7 +21,7 @@ export default function PhotoDishCard({ product }: { product: Product }) {
       }`}
     >
       <div className="relative">
-        <SafeImage src={product.image} alt={product.nom} fallbackIcon="🍱" className="aspect-[4/3] w-full" />
+        <SafeImage src={product.image} alt={product.nom} className="aspect-[4/3] w-full" />
         {product.badge && (
           <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-3 py-1 text-xs font-bold text-gold-light backdrop-blur">
             {product.badge}
@@ -38,7 +38,7 @@ export default function PhotoDishCard({ product }: { product: Product }) {
         {product.description && (
           <p className="mt-1.5 flex-1 text-sm leading-relaxed text-neutral-300">{product.description}</p>
         )}
-        {allergenes && <p className="mt-1 text-xs text-neutral-400">⚠️ {allergenes}</p>}
+        {allergenes && <p className="mt-1 text-xs text-neutral-400">{allergenes}</p>}
 
         {product.options ? (
           <>

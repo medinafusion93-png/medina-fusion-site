@@ -6,9 +6,6 @@ export default function FaqSection() {
   return (
     <section id="faq" ref={reveal.ref} aria-labelledby="faq-titre" className={`scroll-mt-20 ${reveal.className}`}>
       <h3 id="faq-titre" className="section-title mb-6 text-center">
-        <span aria-hidden="true" className="mr-2">
-          ❓
-        </span>
         Questions fréquentes
       </h3>
       <div className="mx-auto max-w-3xl space-y-3">

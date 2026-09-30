@@ -1,5 +1,6 @@
 import { CONTACT } from '../data/config';
 import { useCart } from '../hooks/useCart';
+import Icon from './Icon';
 
 /** Bouton WhatsApp flottant (masqué quand la barre panier est visible, qui a déjà son bouton WhatsApp) */
 export default function WhatsAppFab() {
@@ -14,7 +15,7 @@ export default function WhatsAppFab() {
       aria-label="Nous écrire sur WhatsApp"
       className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#1f9d55] text-2xl text-white shadow-xl shadow-black/50 transition hover:scale-105 hover:bg-[#1b8a4a] sm:bottom-6 sm:right-6"
     >
-      <span aria-hidden="true">💬</span>
+      <Icon name="chat" className="h-7 w-7" />
     </a>
   );
 }

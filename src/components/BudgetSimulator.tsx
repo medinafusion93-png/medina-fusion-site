@@ -13,7 +13,7 @@ const MOMENTS: { id: Moment; label: string; icon: string }[] = [
 
 const TAGS: Record<Proposal['tag'], { label: (p: Proposal, budget: number) => string; className: string }> = {
   eco: { label: () => 'Économique', className: 'bg-white/10 text-neutral-100' },
-  ideal: { label: () => '⭐ Idéal pour votre budget', className: 'bg-gold text-ink' },
+  ideal: { label: () => 'Idéal pour votre budget', className: 'bg-gold text-ink' },
   premium: {
     label: (p, budget) => `Premium · +${formatPrice(round2(p.parPersonne - budget))}/pers.`,
     className: 'bg-gold/15 text-gold-light',
@@ -104,7 +104,7 @@ function ProposalCard({ p, budget, personnes }: { p: Proposal; budget: number; p
         }}
         className={`${p.tag === 'ideal' ? 'btn-gold' : 'btn-outline'} mt-5 w-full`}
       >
-        {added ? '✓ Ajouté — ajouter encore' : '🛒 Ajouter ce menu au panier'}
+        {added ? '✓ Ajouté — ajouter encore' : 'Ajouter ce menu au panier'}
       </button>
       {added && (
         <a href="#commande" className="mt-2 text-center text-sm font-semibold text-gold underline underline-offset-2" role="status">
@@ -144,9 +144,6 @@ export default function BudgetSimulator() {
       <div className="rounded-3xl border border-gold/40 bg-gradient-to-b from-ink-700 to-ink-800 p-5 sm:p-8">
         <div className="text-center">
           <h3 id={`${uid}-titre`} className="section-title">
-            <span aria-hidden="true" className="mr-2">
-              🧮
-            </span>
             Votre menu selon votre budget
           </h3>
           <p className="mx-auto mt-2 max-w-xl text-neutral-300">
@@ -174,7 +171,7 @@ export default function BudgetSimulator() {
                     onChange={() => setMoment(m.id)}
                     className="sr-only"
                   />
-                  <span aria-hidden="true">{m.icon}</span> {m.label}
+                  {m.label}
                 </label>
               ))}
             </div>
@@ -189,7 +186,7 @@ export default function BudgetSimulator() {
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
                 <div>
                   <label htmlFor={`${uid}-vege`} className={label}>
-                    🌱 Dont végétariens
+                    Dont végétariens
                   </label>
                   <NumberStepper
                     id={`${uid}-vege`}
@@ -202,7 +199,7 @@ export default function BudgetSimulator() {
                 </div>
                 <div>
                   <label htmlFor={`${uid}-sg`} className={label}>
-                    🌾 Dont sans gluten
+                    Dont sans gluten
                   </label>
                   <NumberStepper
                     id={`${uid}-sg`}

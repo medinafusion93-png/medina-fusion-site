@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { CONTACT } from '../data/config';
 import { useCart } from '../hooks/useCart';
+import Icon from './Icon';
 
 /** Retour utilisateur après envoi : chargement, succès, fallback mailto, champs manquants */
 export default function StatusNotice() {
@@ -43,7 +44,7 @@ export default function StatusNotice() {
             </>
           ) : (
             <>
-              <span aria-hidden="true">⚠️</span>
+              <Icon name="alert" className="h-5 w-5 shrink-0" />
               <span className="flex-1">{status.message}</span>
               <button type="button" onClick={resetStatus} aria-label="Fermer" className="px-1 text-lg leading-none">
                 ×
@@ -78,8 +79,8 @@ export default function StatusNotice() {
         onClick={(e) => e.stopPropagation()}
         className="card w-full max-w-md p-6 text-center shadow-2xl"
       >
-        <div className="text-5xl" aria-hidden="true">
-          {success ? '✅' : '📨'}
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-gold/50 text-gold">
+          <Icon name={success ? 'check' : 'mail'} className="h-7 w-7" />
         </div>
         <h2 id="status-title" className="mt-3 font-display text-2xl font-bold text-gold-light">
           {title}

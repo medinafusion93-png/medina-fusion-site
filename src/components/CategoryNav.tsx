@@ -19,7 +19,6 @@ export default function CategoryNav() {
               href={l.href}
               className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-sm text-neutral-200 transition hover:border-gold hover:text-gold-light"
             >
-              <span aria-hidden="true">{l.icon}</span>
               {l.label}
             </a>
           </li>

@@ -45,7 +45,6 @@ export default function Hero() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-white/5 px-4 py-2 text-sm text-neutral-100 transition hover:border-gold hover:bg-white/10"
           >
-            <span aria-hidden="true">📸</span>
             <span>
               <strong className="text-white">{CONTACT.instagramAbonnes}</strong> abonnés Instagram
             </span>

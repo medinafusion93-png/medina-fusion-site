@@ -8,9 +8,6 @@ export default function FormulesSection() {
     <section id="formules" ref={reveal.ref} aria-labelledby="formules-titre" className={`scroll-mt-20 ${reveal.className}`}>
       <div className="mb-8 text-center">
         <h3 id="formules-titre" className="section-title">
-          <span aria-hidden="true" className="mr-2">
-            🎉
-          </span>
           Nos Formules
         </h3>
         <p className="mt-2 text-neutral-300">Petit-déjeuner, brunch et buffets — prix par personne.</p>

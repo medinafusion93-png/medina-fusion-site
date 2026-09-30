@@ -1,5 +1,6 @@
 import { useCart } from '../hooks/useCart';
 import { formatPrice } from '../lib/format';
+import Icon from './Icon';
 
 /** Barre panier flottante (bas d’écran) — visible dès qu’un article est ajouté */
 export default function CartBar() {
@@ -22,8 +23,8 @@ export default function CartBar() {
           className="mx-auto flex max-w-3xl items-center gap-3 rounded-2xl border border-gold/50 bg-ink-800/95 p-3 shadow-2xl shadow-black/60 backdrop-blur sm:p-4"
         >
           <a href="#commande" className="flex min-w-0 flex-1 items-center gap-3" tabIndex={count ? 0 : -1}>
-            <span className="relative text-2xl" aria-hidden="true">
-              🛒
+            <span className="relative text-gold" aria-hidden="true">
+              <Icon name="cart" className="h-7 w-7" />
               <span className="absolute -right-2 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold px-1 text-xs font-bold text-ink">
                 {count}
               </span>
@@ -45,12 +46,12 @@ export default function CartBar() {
             tabIndex={count ? 0 : -1}
             className="btn-gold px-4"
           >
-            <span aria-hidden="true">📧</span>
+            <Icon name="mail" />
             <span className="hidden sm:inline">{loading ? 'Envoi…' : 'Email'}</span>
             <span className="sr-only sm:hidden">Envoyer la commande par email</span>
           </button>
           <button type="button" onClick={openWhatsApp} tabIndex={count ? 0 : -1} className="btn-whatsapp px-4">
-            <span aria-hidden="true">💬</span>
+            <Icon name="chat" />
             <span className="hidden sm:inline">WhatsApp</span>
             <span className="sr-only sm:hidden">Commander par WhatsApp</span>
           </button>

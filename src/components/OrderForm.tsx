@@ -6,6 +6,7 @@ import { dateMinISO } from '../lib/validation';
 import type { CustomerInfo } from '../types';
 import CartSuggestions from './CartSuggestions';
 import TastingButton from './TastingButton';
+import Icon from './Icon';
 
 interface FieldProps {
   name: keyof CustomerInfo;
@@ -90,9 +91,6 @@ export default function OrderForm() {
     <section id="commande" aria-labelledby="commande-titre" className="scroll-mt-20">
       <div className="mb-8 text-center">
         <h3 id="commande-titre" className="section-title">
-          <span aria-hidden="true" className="mr-2">
-            📝
-          </span>
           Vos Coordonnées
         </h3>
         <p className="mt-2 text-neutral-300">
@@ -135,7 +133,7 @@ export default function OrderForm() {
             label="Recommandé par"
             placeholder="Nom de l’entreprise qui vous a recommandé"
             className="sm:col-span-2"
-            hint={<>🎁 Parrainage : −10% pour vous et −10% pour votre parrain sur la prochaine commande !</>}
+            hint={<>Parrainage : −10% pour vous et −10% pour votre parrain sur la prochaine commande !</>}
           />
           <Field
             name="notes"
@@ -155,11 +153,11 @@ export default function OrderForm() {
                   Envoi en cours…
                 </>
               ) : (
-                <>📧 Envoyer la commande</>
+                <><Icon name="mail" /> Envoyer la commande</>
               )}
             </button>
             <button type="button" className="btn-whatsapp flex-1" onClick={openWhatsApp}>
-              💬 Commander par WhatsApp
+              <Icon name="chat" /> Commander par WhatsApp
             </button>
           </div>
         </form>
@@ -182,7 +180,7 @@ export default function OrderForm() {
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
                       {l.offert ? (
-                        <span className="font-semibold text-emerald-300">Offert 🎁</span>
+                        <span className="font-semibold text-emerald-300">Offert</span>
                       ) : (
                         <>
                           <span className="tabular-nums text-neutral-200">{formatPrice(l.quantite * l.prix_unitaire)} HT</span>

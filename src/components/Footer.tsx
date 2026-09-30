@@ -22,7 +22,7 @@ export default function Footer() {
           </p>
         </address>
         <div>
-          <p>🚚 Livraison à partir de {CONTACT.minPersonnesLivraison} personnes</p>
+          <p>Livraison à partir de {CONTACT.minPersonnesLivraison} personnes</p>
           <p className="mt-1">
             {CONTACT.formeJuridique} · {CONTACT.rcs}
           </p>
@@ -33,7 +33,7 @@ export default function Footer() {
           </p>
           <p className="mt-1">
             <a href={CONTACT.instagramUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
-              📸 Instagram @{CONTACT.instagram} · {CONTACT.instagramAbonnes} abonnés
+              Instagram @{CONTACT.instagram} · {CONTACT.instagramAbonnes} abonnés
             </a>
           </p>
         </div>

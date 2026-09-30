@@ -5,7 +5,7 @@ export default function TastingButton({ className = 'btn-outline' }: { className
   const loading = status.state === 'loading' && status.type === 'degustation';
   return (
     <button type="button" className={className} onClick={() => void submit('degustation')} disabled={loading}>
-      {loading ? 'Envoi…' : '🎁 Demander une Dégustation Gratuite'}
+      {loading ? 'Envoi…' : 'Demander une dégustation gratuite'}
     </button>
   );
 }

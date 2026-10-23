@@ -3,6 +3,8 @@
 > **Suivio** est un nom provisoire. La disponibilité du nom de domaine et de la marque n'a pas été vérifiée.
 > Produit de la marque **Medina Fusion Solution**.
 
+> La version réelle (MVP multi-entreprises : Supabase, IA, e-mails) est dans [`/suivio`](../../suivio/README.md).
+
 **Promesse :** « Centralisez vos demandes, préparez vos réponses et suivez chaque devis jusqu'à une décision du client. »
 Le produit complète le logiciel métier existant (devis, facturation, planning). Il ne le remplace pas.
 

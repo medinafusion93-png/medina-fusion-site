@@ -1,0 +1,17 @@
+# Site Netlify séparé : « Base directory » = suivio
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Application monopage (dont le formulaire public /f/<jeton>)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Content-Type-Options = "nosniff"

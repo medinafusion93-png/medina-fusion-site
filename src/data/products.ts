@@ -7,7 +7,7 @@ import type { Formule, Orderable, Product, ProductCategory, ProductOption } from
 
 const froide = (id: string, nom: string): Product => ({ id, nom, prix: 6, unite: '200g' });
 const chaude = (id: string, nom: string): Product => ({ id, nom, prix: 6.5, unite: '4 pièces' });
-const sandwich = (id: string, nom: string): Product => ({ id, nom, prix: 7.5 });
+const sandwich = (id: string, nom: string): Product => ({ id, nom, prix: 7.5, image: '/produits/sandwich.jpg' });
 const dessert = (id: string, nom: string, unite?: string): Product => ({ id, nom, prix: 4, unite });
 
 const BEIGNETS: ProductOption = {
@@ -35,7 +35,7 @@ export const CATEGORIES: ProductCategory[] = [
       froide('moutabel', 'Moutabel'),
       froide('labne', 'Labné'),
       froide('taboule', 'Taboulé'),
-      froide('salade-chenklich', 'Salade chenklich'),
+      { ...froide('salade-chenklich', 'Salade chenklich'), image: '/produits/salade-chenklich.jpg' },
       froide('salade-tunisienne', 'Salade tunisienne'),
       froide('salade-mechouia', 'Salade mechouia'),
       { ...froide('salade-fattouche', 'Salade fattouche'), image: '/produits/salade-fattouche.jpg' },
@@ -78,6 +78,7 @@ export const CATEGORIES: ProductCategory[] = [
         prix: 13,
         description: 'Sandwich au choix + beignet + boisson + dessert',
         badge: 'Formule',
+        image: '/produits/sandwich.jpg',
       },
     ],
   },

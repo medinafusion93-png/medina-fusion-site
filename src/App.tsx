@@ -1,3 +1,4 @@
+import { MotionConfig } from 'framer-motion';
 import BudgetSimulator from './components/BudgetSimulator';
 import CartBar from './components/CartBar';
 import CategoryNav from './components/CategoryNav';
@@ -10,25 +11,17 @@ import OrderForm from './components/OrderForm';
 import ProductSection from './components/ProductSection';
 import StatusNotice from './components/StatusNotice';
 import WhatsAppFab from './components/WhatsAppFab';
-import { ASSETS } from './data/config';
 import { CATEGORIES } from './data/products';
 
 export default function App() {
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <a
         href="#carte"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-gold focus:px-4 focus:py-2 focus:text-ink"
       >
         Aller à la carte
       </a>
-
-      <img
-        src={ASSETS.banner}
-        alt="Medina Fusion — Traiteur libano-tunisien"
-        className="block h-auto w-full"
-        onError={(e) => (e.currentTarget.style.display = 'none')}
-      />
 
       <Hero />
       <Highlights />
@@ -48,6 +41,6 @@ export default function App() {
       <CartBar />
       <WhatsAppFab />
       <StatusNotice />
-    </>
+    </MotionConfig>
   );
 }

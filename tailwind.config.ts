@@ -5,21 +5,24 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Façade noire du restaurant
         ink: {
-          DEFAULT: '#0b0b0b',
-          800: '#141414',
-          700: '#1c1c1c',
-          600: '#262626',
+          DEFAULT: '#1c1814',
+          800: '#25201b',
+          700: '#2e2822',
+          600: '#3b332b',
         },
+        // Orange du logo (le nom « gold » est conservé pour ne rien casser)
         gold: {
-          light: '#f5e1a4',
-          DEFAULT: '#d4af37',
-          dark: '#a8841f',
+          light: '#ffab73',
+          DEFAULT: '#e8590c',
+          dark: '#c44a08',
         },
+        chaux: '#f5f3ee',
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        sans: ['Poppins', 'system-ui', 'sans-serif'],
+        display: ['"Big Shoulders Display"', 'Impact', 'sans-serif'],
+        sans: ['"Familjen Grotesk"', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         shimmer: {

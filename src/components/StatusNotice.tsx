@@ -82,7 +82,7 @@ export default function StatusNotice() {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-gold/50 text-gold">
           <Icon name={success ? 'check' : 'mail'} className="h-7 w-7" />
         </div>
-        <h2 id="status-title" className="mt-3 font-display text-2xl font-bold text-gold-light">
+        <h2 id="status-title" className="mt-3 font-display text-3xl font-extrabold text-gold-light">
           {title}
         </h2>
         <p id="status-body" className="mt-2 text-neutral-200">

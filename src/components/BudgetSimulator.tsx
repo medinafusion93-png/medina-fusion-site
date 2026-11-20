@@ -76,7 +76,7 @@ function ProposalCard({ p, budget, personnes }: { p: Proposal; budget: number; p
       }`}
     >
       <span className={`self-start rounded-full px-3 py-1 text-xs font-bold ${tag.className}`}>{tag.label(p, budget)}</span>
-      <h4 className="mt-3 font-display text-xl font-bold text-white">{p.titre}</h4>
+      <h4 className="mt-3 font-display text-3xl font-extrabold leading-none text-white">{p.titre}</h4>
       <p className="mt-1 text-sm text-neutral-300">{p.description}</p>
 
       <div className="mt-4 flex items-baseline gap-2">

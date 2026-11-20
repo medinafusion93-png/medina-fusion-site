@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="border-t border-gold/20 bg-ink-800">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 text-sm text-neutral-300 sm:grid-cols-3 sm:px-6 lg:px-8">
         <div>
-          <p className="font-display text-lg font-bold text-gold-light">{CONTACT.nom}</p>
+          <p className="font-display text-2xl font-extrabold text-gold-light">{CONTACT.nom}</p>
           <p className="mt-1">Traiteur libano-tunisien fait maison</p>
         </div>
         <address className="not-italic">

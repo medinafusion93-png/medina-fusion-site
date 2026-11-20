@@ -11,3 +11,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+// Polices auto-hébergées (fontsource)
+declare module '@fontsource/*';

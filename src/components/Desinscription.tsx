@@ -31,7 +31,7 @@ export default function Desinscription() {
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md rounded-2xl border border-gold/40 bg-ink-800 p-6 text-center shadow-2xl">
-        <p className="font-display text-2xl font-bold text-gold-light">MEDINA FUSION</p>
+        <p className="font-display text-3xl font-extrabold text-gold-light">MEDINA FUSION</p>
         <h1 className="mt-2 text-lg font-semibold text-white">Ne plus recevoir nos messages</h1>
         {!valide ? (
           <p className="mt-4 text-sm text-neutral-300">

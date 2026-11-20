@@ -3,6 +3,12 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { OrderProvider } from './context/OrderProvider';
 import { capturerRef } from './lib/prospection-ref';
+import '@fontsource/big-shoulders-display/latin-800';
+import '@fontsource/big-shoulders-display/latin-900';
+import '@fontsource/familjen-grotesk/latin-400';
+import '@fontsource/familjen-grotesk/latin-500';
+import '@fontsource/familjen-grotesk/latin-600';
+import '@fontsource/familjen-grotesk/latin-700';
 import './index.css';
 
 // Espace administrateur : chargé uniquement sur /admin (code séparé du site public)

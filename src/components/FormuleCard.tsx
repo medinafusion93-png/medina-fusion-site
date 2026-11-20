@@ -21,7 +21,7 @@ export default function FormuleCard({ formule }: { formule: Formule }) {
           {formule.badge}
         </span>
       )}
-      <h4 className="mt-1 font-display text-xl font-bold text-white">{formule.nom}</h4>
+      <h4 className="mt-1 font-display text-3xl font-extrabold leading-none text-white">{formule.nom}</h4>
 
       <div className="mt-3 flex items-baseline gap-2">
         <span className="text-3xl font-extrabold text-gold">{formatPrice(formule.prix)}</span>

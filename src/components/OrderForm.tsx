@@ -163,7 +163,7 @@ export default function OrderForm() {
         </form>
 
         <aside aria-labelledby="recap-titre" className="card h-fit p-5 sm:p-6 lg:sticky lg:top-20 lg:col-span-2">
-          <h4 id="recap-titre" className="font-display text-lg font-bold text-gold-light">
+          <h4 id="recap-titre" className="font-display text-2xl font-extrabold text-gold-light">
             Récapitulatif
           </h4>
           {lines.length === 0 ? (

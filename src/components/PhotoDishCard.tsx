@@ -34,7 +34,7 @@ export default function PhotoDishCard({ product }: { product: Product }) {
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <h4 className="font-display text-lg font-bold text-white">{product.nom}</h4>
+        <h4 className="font-display text-2xl font-extrabold text-white">{product.nom}</h4>
         {product.description && (
           <p className="mt-1.5 flex-1 text-sm leading-relaxed text-neutral-300">{product.description}</p>
         )}

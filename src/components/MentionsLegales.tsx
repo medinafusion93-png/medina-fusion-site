@@ -4,7 +4,7 @@ import { CONTACT, HEBERGEUR, TVA_RATE } from '../data/config';
 function Section({ id, titre, children }: { id: string; titre: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-6 space-y-3">
-      <h2 className="font-display text-2xl font-bold text-gold-light">{titre}</h2>
+      <h2 className="font-display text-3xl font-extrabold text-gold-light">{titre}</h2>
       {children}
     </section>
   );

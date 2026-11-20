@@ -25,7 +25,7 @@ export default function Hero() {
             <span className="block font-sans text-xs font-semibold text-gold-light">Traiteur entreprises</span>
           </span>
         </a>
-        <a href="#commande" className="btn-gold hidden sm:inline-flex">
+        <a href="#commande" className="btn-gold px-5">
           Commander
         </a>
       </div>

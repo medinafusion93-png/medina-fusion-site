@@ -7,7 +7,9 @@ import Footer from './components/Footer';
 import FormulesSection from './components/FormulesSection';
 import Hero from './components/Hero';
 import Highlights from './components/Highlights';
+import OfferBar from './components/OfferBar';
 import OrderForm from './components/OrderForm';
+import Reassurance from './components/Reassurance';
 import ProductSection from './components/ProductSection';
 import StatusNotice from './components/StatusNotice';
 import WhatsAppFab from './components/WhatsAppFab';
@@ -23,6 +25,7 @@ export default function App() {
         Aller à la carte
       </a>
 
+      <OfferBar />
       <Hero />
       <Highlights />
       <CategoryNav />
@@ -33,6 +36,7 @@ export default function App() {
           <ProductSection key={cat.id} category={cat} />
         ))}
         <FormulesSection />
+        <Reassurance />
         <OrderForm />
         <FaqSection />
       </main>

@@ -1,6 +1,55 @@
 <!doctype html>
 <html lang="fr">
   <head>
+    <!-- Google Ads : balise AW-774630066 + conversions commande traiteur -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-774630066"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-774630066');
+
+      (function () {
+        var LABEL_COMMANDE = 'AW-774630066/ArvxCL3vvL0dELLVr_EC';
+        var LABEL_DEGUSTATION = ''; // a remplir quand la conversion "Demande degustation" sera creee
+        var WEBHOOK = 'webhook/commande-traiteur';
+
+        var originalFetch = window.fetch;
+        if (!originalFetch) return;
+
+        window.fetch = function (input, init) {
+          var url = typeof input === 'string' ? input : (input && input.url) || '';
+          var payload = null;
+          if (url.indexOf(WEBHOOK) !== -1 && init && typeof init.body === 'string') {
+            try { payload = JSON.parse(init.body); } catch (e) { payload = null; }
+          }
+          var request = originalFetch.apply(this, arguments);
+          if (!payload) return request;
+
+          return request.then(function (response) {
+            try {
+              if (response && response.ok) {
+                var id = 'MF-' + Date.now();
+                if (payload.type === 'degustation') {
+                  if (LABEL_DEGUSTATION) {
+                    gtag('event', 'conversion', { send_to: LABEL_DEGUSTATION, transaction_id: id });
+                  }
+                } else {
+                  var total = Number(payload.total) || 0;
+                  gtag('event', 'conversion', {
+                    send_to: LABEL_COMMANDE,
+                    value: total > 0 ? total : 300,
+                    currency: 'EUR',
+                    transaction_id: id
+                  });
+                }
+              }
+            } catch (e) {}
+            return response;
+          });
+        };
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Medina Fusion — Traiteur libano-tunisien | Bagnolet</title>

@@ -48,7 +48,8 @@ export interface Formule {
   nom: string;
   icon: string;
   prix: number;
-  prixBarre: number;
+  /** Prix barré (optionnel : sans lui, pas d'affichage d'économie) */
+  prixBarre?: number;
   minPersonnes: number;
   contenu: string[];
   badge?: string;

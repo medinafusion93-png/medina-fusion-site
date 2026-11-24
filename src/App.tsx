@@ -7,6 +7,8 @@ import Footer from './components/Footer';
 import FormulesSection from './components/FormulesSection';
 import Hero from './components/Hero';
 import Highlights from './components/Highlights';
+import MenusFetesSection from './components/MenusFetesSection';
+import NoelBar from './components/NoelBar';
 import OfferBar from './components/OfferBar';
 import OrderForm from './components/OrderForm';
 import Reassurance from './components/Reassurance';
@@ -25,12 +27,14 @@ export default function App() {
         Aller à la carte
       </a>
 
+      <NoelBar />
       <OfferBar />
       <Hero />
       <Highlights />
       <CategoryNav />
 
       <main id="carte" className="mx-auto max-w-6xl scroll-mt-20 space-y-16 px-4 py-12 sm:px-6 lg:px-8">
+        <MenusFetesSection />
         <BudgetSimulator />
         {CATEGORIES.map((cat) => (
           <ProductSection key={cat.id} category={cat} />

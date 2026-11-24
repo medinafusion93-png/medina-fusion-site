@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CATEGORIES, FORMULES, ORDERABLES } from '../data/products';
+import { CATEGORIES, FORMULES, MENUS_FETES, ORDERABLES } from '../data/products';
 
 describe('catalogue', () => {
   const produits = CATEGORIES.flatMap((c) => c.produits);
@@ -18,7 +18,7 @@ describe('catalogue', () => {
     });
     expect(FORMULES).toHaveLength(5);
     const lignesPanier = produits.reduce((s, p) => s + (p.options ? p.options.choix.length : 1), 0);
-    expect(ORDERABLES.size).toBe(lignesPanier + FORMULES.length);
+    expect(ORDERABLES.size).toBe(lignesPanier + FORMULES.length + MENUS_FETES.length);
   });
 
   it('crée une ligne panier par choix pour les plateaux à options', () => {
@@ -32,7 +32,7 @@ describe('catalogue', () => {
   });
 
   it('a des identifiants uniques', () => {
-    const ids = [...produits.map((p) => p.id), ...FORMULES.map((f) => f.id)];
+    const ids = [...produits.map((p) => p.id), ...FORMULES.map((f) => f.id), ...MENUS_FETES.map((f) => f.id)];
     expect(new Set(ids).size).toBe(ids.length);
   });
 
@@ -58,6 +58,10 @@ describe('catalogue', () => {
       [25, 30, 10],
       [35, 42, 10],
       [45, 58, 15],
+    ]);
+    expect(MENUS_FETES.map((f) => [f.prix, f.minPersonnes])).toEqual([
+      [29, 6],
+      [39, 8],
     ]);
   });
 });

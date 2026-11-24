@@ -6,7 +6,7 @@ import QuantityStepper from './QuantityStepper';
 export default function FormuleCard({ formule }: { formule: Formule }) {
   const { quantities } = useCart();
   const persons = quantities[formule.id] ?? 0;
-  const economie = formule.prixBarre - formule.prix;
+  const economie = formule.prixBarre ? formule.prixBarre - formule.prix : 0;
 
   return (
     <li
@@ -26,13 +26,17 @@ export default function FormuleCard({ formule }: { formule: Formule }) {
       <div className="mt-3 flex items-baseline gap-2">
         <span className="text-3xl font-extrabold text-gold">{formatPrice(formule.prix)}</span>
         <span className="text-sm text-neutral-300">HT /pers.</span>
-        <s className="text-sm text-neutral-400" aria-label={`au lieu de ${formatPrice(formule.prixBarre)}`}>
-          {formatPrice(formule.prixBarre)}
-        </s>
+        {formule.prixBarre ? (
+          <s className="text-sm text-neutral-400" aria-label={`au lieu de ${formatPrice(formule.prixBarre)}`}>
+            {formatPrice(formule.prixBarre)}
+          </s>
+        ) : null}
       </div>
-      <p className="mt-1 text-sm font-semibold text-emerald-400">
-        Vous économisez {formatPrice(economie)} par personne
-      </p>
+      {economie > 0 && (
+        <p className="mt-1 text-sm font-semibold text-emerald-400">
+          Vous économisez {formatPrice(economie)} par personne
+        </p>
+      )}
       <p className="mt-1 text-xs uppercase tracking-wider text-neutral-300">
         Minimum {formule.minPersonnes} personnes
       </p>

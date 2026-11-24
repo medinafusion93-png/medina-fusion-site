@@ -273,6 +273,45 @@ export const FORMULES: Formule[] = [
   },
 ];
 
+/** Menus de Fêtes (fin d'année) — affichés jusqu'à MENUS_FETES_JUSQU_AU */
+export const MENUS_FETES: Formule[] = [
+  {
+    id: 'menu-fetes-medina',
+    nom: 'Menu Fêtes Médina',
+    icon: '🎄',
+    prix: 29,
+    minPersonnes: 6,
+    contenu: [
+      '3 entrées froides : houmous, moutabel, taboulé',
+      '2 entrées chaudes : samoussa viande, fatayer épinards',
+      'Plat : brochettes poulet & kefta, batata harra',
+      'Dessert : baklawa',
+      'Citronnade maison',
+    ],
+  },
+  {
+    id: 'menu-reveillon-prestige',
+    nom: 'Menu Réveillon Prestige',
+    icon: '✨',
+    prix: 39,
+    minPersonnes: 8,
+    contenu: [
+      '4 entrées froides : houmous, moutabel, taboulé, feuilles de vigne',
+      '3 entrées chaudes : samoussa, sfiha, falafel',
+      'Plat : assortiment chawarma poulet & viande, brochettes kefta, batata harra',
+      'Desserts : pâtisseries orientales assorties, mhalabia',
+      'Jus de saison artisanal',
+    ],
+    badge: '★ RÉVEILLON',
+    highlight: true,
+  },
+];
+/** Date limite de commande des menus de fêtes (affichée sur le site) */
+export const MENUS_FETES_DATE_LIMITE = '22 décembre';
+/** Après cette date, la section et le bandeau de fêtes disparaissent automatiquement */
+export const MENUS_FETES_JUSQU_AU = new Date('2027-01-01T00:00:00+01:00');
+export const menusFetesActifs = (now = new Date()) => now < MENUS_FETES_JUSQU_AU;
+
 /** Buffets : chauffe-plat offert à partir de ce nombre de convives, 1 par tranche de 20 (voir lib/offres.ts) */
 export const CHAUFFE_PLAT_OFFERT_DES = 30;
 export const BUFFETS_IDS = ['buffet-classique', 'buffet-standard', 'buffet-prestige'];
@@ -291,6 +330,6 @@ export const ORDERABLES = new Map<string, Orderable>(
           : [{ id: p.id, nom: p.nom, prix: p.prix }],
       ),
     ),
-    ...FORMULES.map((f): Orderable => ({ id: f.id, nom: `${f.nom} (par pers.)`, prix: f.prix, min: f.minPersonnes })),
+    ...[...FORMULES, ...MENUS_FETES].map((f): Orderable => ({ id: f.id, nom: `${f.nom} (par pers.)`, prix: f.prix, min: f.minPersonnes })),
   ].map((o) => [o.id, o]),
 );

@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { CATEGORIES } from '../data/products';
+import { CATEGORIES, menusFetesActifs } from '../data/products';
 import { useCart } from '../hooks/useCart';
 
 const LINKS = [
+  ...(menusFetesActifs() ? [{ id: 'fetes', label: '🎄 Menus de Fêtes' }] : []),
   { id: 'simulateur', label: 'Menu selon budget' },
   ...CATEGORIES.map((c) => ({ id: c.id, label: c.titre })),
   { id: 'formules', label: 'Formules' },
